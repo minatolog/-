@@ -1,5 +1,11 @@
-function AuthContainer() {
-  return <div>auth container</div>;
-}
+import { Outlet } from 'react-router-dom';
 
-export default AuthContainer;
+export default function AuthContainer() {
+  
+  return (
+    <>
+    <div>auth container</div>
+  <Outlet />
+   </>
+  )
+}

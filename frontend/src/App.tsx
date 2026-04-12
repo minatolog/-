@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { BrowserRouter, Routes,Route, Navigate } from 'react-router-dom'
-import AuthContainer from './auth/AuthContainer';
-import LoginPage from './auth/LoginPage';
-import ReisterPage from './auth/ReigsterPage'; 
-import LandingPage from './auth/LandingPage';
-import Dashboard from './dashboard/dashboard';
+import AuthContainer from './auth/AuthContainer.tsx';
+import LoginPage from './auth/LoginPage.tsx';
+import RegisterPage from './auth/RegisterPage.tsx';
+import LandingPage from './auth/LandingPage.tsx';
+import Dashboard from './dashboard/dashboard.tsx';
 function App() {
   const[token,setTokenState]=useState(localStorage.getItem('token'));
   return (
@@ -12,18 +12,21 @@ function App() {
      <BrowserRouter>
      
      <Routes>
-       <Route path="/auth" 
+       <Route 
+       path="/auth" 
        element={
         token? < Navigate to ="/dashboard" replace /> : <AuthContainer/>
-       }>   
-       </Route>
+       }
+       >   
          
       <Route index element={<LandingPage />} />
       <Route path="login" element={<LoginPage />} />
-      <Route path="register" element={<ReisterPage />} />
+      <Route path="register" element={<RegisterPage />} />
+        </Route>
       <Route path='dashboard'
-       element={token? <Dashboard /> : < Navigate to ="/auth" replace />}
-      
+       element={
+        token? <Dashboard /> : < Navigate to ="/auth" replace />
+       }
       />
      </Routes>
      </BrowserRouter>
