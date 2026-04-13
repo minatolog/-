@@ -1,7 +1,7 @@
 import { Box, Stack, Typography, TextField,Button } from '@mui/material';
-import { useState } from 'react';
+import { useState, type SubmitEvent } from 'react';
+import BackToHomeBtn from './BackToHomeBtn.tsx';
 export default function LoginPage() {
-import BackToHomeBtn from './BackToHomeBtn';
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   function handleSubmit(event: SubmitEvent) {
