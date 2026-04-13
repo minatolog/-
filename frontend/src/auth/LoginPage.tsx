@@ -1,12 +1,19 @@
-import { Box, Stack, Typography, TextField,Button } from '@mui/material';
+import { Box, Stack, Typography, TextField,Button,Alert } from '@mui/material';
 import { useState, type SubmitEvent } from 'react';
 import BackToHomeBtn from './BackToHomeBtn.tsx';
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errormeaage,setErrorMessage]=useState('');
+  const [confirmPswd, setConfirmPswd] = useState('');
   function handleSubmit(event: SubmitEvent) {
     event.preventDefault();
+    if (password !== confirmPswd) {
+      setErrorMessage('Passwords do not match!');
+      return;
+    } 
   }
+   
   const hasEmptyField = email.trim() === '' || password.trim() === '';
   return (
     <>
@@ -20,7 +27,7 @@ export default function LoginPage() {
 
       <Box component="form" onSubmit={handleSubmit}>
         <Stack spacing={2}>
-
+      {errormeaage && <Alert severity="error">{errormeaage}</Alert>}
           <TextField
             label="Email"
             type="email"

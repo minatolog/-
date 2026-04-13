@@ -1,15 +1,24 @@
 import { useState,type SubmitEvent } from 'react';
-import { Box, Stack, Typography, TextField, Button } from '@mui/material';
+import { Box, Stack, Typography, TextField, Button, Alert } from '@mui/material';
+import BackToHomeBtn from './BackToHomeBtn';
 export default function RegisterPage() {
 
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPswd, setConfirmPswd] = useState('');
-
+  const [errormeaage,setErrorMessage]=useState('');
+  
   function handleSubmit(event: SubmitEvent) {
     event.preventDefault();
+     if (password !== confirmPswd) {
+      setErrorMessage('Passwords do not match!');
+      return;
+    } 
   }
+   
+const hasEmptyField =[email,name,password,confirmPswd]
+.some(field => field.trim() === '');
 
   return (
     <>
@@ -23,6 +32,7 @@ export default function RegisterPage() {
 
       <Box component="form" onSubmit={handleSubmit}>
         <Stack spacing={2}>
+          {errormeaage && <Alert severity="error">{errormeaage}</Alert>}
       <TextField
         label="Name"
         type="text"
@@ -62,7 +72,15 @@ export default function RegisterPage() {
         fullWidth
         autoComplete="new-password"
       />
-
+      <Button
+        variant="contained"
+        type="submit"
+        fullWidth
+        disabled={hasEmptyField}
+      >
+        Register
+      </Button>
+      <BackToHomeBtn/>
         </Stack>
       </Box>
     </>
