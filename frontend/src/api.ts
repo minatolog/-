@@ -3,14 +3,14 @@ const BACKEND_URL = 'http://localhost:5005';
 type RequestOptions = {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
   body?: unknown;
-  auth?: boolean; // 是否需要带 token
+  auth?: boolean;
 };
 
-type AuthResponse = {
+export type AuthResponse = {
   token: string;
 };
 
-async function request(path: string, options: RequestOptions = {}): Promise<any> {
+async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { method = 'GET', body, auth = false } = options;
 
   const headers: Record<string, string> = {
@@ -42,18 +42,19 @@ async function request(path: string, options: RequestOptions = {}): Promise<any>
     throw new Error(data?.error || 'Request failed');
   }
 
-  return data;
+  return data as T;
 }
 
 export function login(email: string, password: string): Promise<AuthResponse> {
-    return request('/admin/auth/login', {
-        method: 'POST',
-        body: { email, password },
-    });
+  return request<AuthResponse>('/admin/auth/login', {
+    method: 'POST',
+    body: { email, password },
+  });
 }
+
 export function register(email: string, password: string, name: string): Promise<AuthResponse> {
-    return request('/admin/auth/register', {
-        method: 'POST',
-        body: { email, password, name },
-    });
+  return request<AuthResponse>('/admin/auth/register', {
+    method: 'POST',
+    body: { email, password, name },
+  });
 }
