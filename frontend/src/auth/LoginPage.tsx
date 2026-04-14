@@ -1,6 +1,8 @@
 import { Box, Stack, Typography, TextField,Button,Alert } from '@mui/material';
 import { useState, type SubmitEvent } from 'react';
 import BackToHomeBtn from './BackToHomeBtn.tsx';
+import { login } from '../api.ts';
+
 export default function LoginPage() {
 
   const [email, setEmail] = useState('');
@@ -9,21 +11,24 @@ export default function LoginPage() {
   const [confirmPswd, setConfirmPswd] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function handleSubmit(event: SubmitEvent) {
-    event.preventDefault();
-    if (password !== confirmPswd) {
-      setErrorMessage('Passwords do not match!');
-      return;
-    } 
+  async function handleSubmit(event: SubmitEvent): Promise<void> {
+  event.preventDefault();
+
+  if (isSubmitting) {
+    return;
   }
 
+  setErrorMessage('');
+  setIsSubmitting(true);
 
-
-
-
-
-  
-
+  try {
+    const data: LoginResponse = await login(email, password);
+  } catch (error) {
+    setErrorMessage((error as Error).message);
+  } finally {
+    setIsSubmitting(false);
+  }
+}
 
   const hasEmptyField = email.trim() === '' || password.trim() === '';
   return (

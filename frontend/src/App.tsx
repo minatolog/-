@@ -1,14 +1,17 @@
-import { useState } from 'react'
+import { useState } from 'react'  
 import { BrowserRouter, Routes,Route, Navigate } from 'react-router-dom'
 import AuthContainer from './auth/AuthContainer.tsx';
 import LoginPage from './auth/LoginPage.tsx';
 import RegisterPage from './auth/RegisterPage.tsx';
 import LandingPage from './auth/LandingPage.tsx';
 import Dashboard from './dashboard/dashboard.tsx';
+import { AuthContext } from './auth/AuthContext.tsx'; 
 function App() {
-  const[token,setTokenState]=useState(localStorage.getItem('token'));
+  
+   const { token } = useContext(AuthContext);
+
   return (
-    
+
      <BrowserRouter>
      
      <Routes>
