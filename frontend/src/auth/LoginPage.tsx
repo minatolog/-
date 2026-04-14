@@ -2,10 +2,13 @@ import { Box, Stack, Typography, TextField,Button,Alert } from '@mui/material';
 import { useState, type SubmitEvent } from 'react';
 import BackToHomeBtn from './BackToHomeBtn.tsx';
 export default function LoginPage() {
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errormeaage,setErrorMessage]=useState('');
   const [confirmPswd, setConfirmPswd] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   function handleSubmit(event: SubmitEvent) {
     event.preventDefault();
     if (password !== confirmPswd) {
@@ -13,7 +16,15 @@ export default function LoginPage() {
       return;
     } 
   }
-   
+
+
+
+
+
+
+  
+
+
   const hasEmptyField = email.trim() === '' || password.trim() === '';
   return (
     <>

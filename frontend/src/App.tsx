@@ -28,6 +28,13 @@ function App() {
         token? <Dashboard /> : < Navigate to ="/auth" replace />
        }
       />
+      <Route 
+      path="/dashboard" 
+      element={token ? <Dashboard /> : <Navigate to="/auth" replace />} 
+      />
+
+
+
      </Routes>
      </BrowserRouter>
 
