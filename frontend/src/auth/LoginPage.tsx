@@ -2,6 +2,7 @@ import { Box, Stack, Typography, TextField,Button,Alert } from '@mui/material';
 import { useState, type SubmitEvent } from 'react';
 import BackToHomeBtn from './BackToHomeBtn.tsx';
 import { login } from '../api.ts';
+import { AuthContext } from './AuthContext.tsx';  
 
 export default function LoginPage() {
 
@@ -22,7 +23,8 @@ export default function LoginPage() {
   setIsSubmitting(true);
 
   try {
-    const data: LoginResponse = await login(email, password);
+    const data = await login(email, password);
+    setToken(data.token);
   } catch (error) {
     setErrorMessage((error as Error).message);
   } finally {
@@ -79,4 +81,8 @@ export default function LoginPage() {
       </Box>
     </>
   )
+}
+
+function setToken(token: string) {
+  throw new Error('Function not implemented.');
 }
