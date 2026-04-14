@@ -1,20 +1,39 @@
-import { useState,type SubmitEvent } from 'react';
+import { useContext, useState,type SubmitEvent } from 'react';
 import { Box, Stack, Typography, TextField, Button, Alert } from '@mui/material';
 import BackToHomeBtn from './BackToHomeBtn';
+import { register } from '../api.ts';
+import { AuthContext } from './AuthContext.tsx';
 export default function RegisterPage() {
+  const { setToken } = useContext(AuthContext);
 
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPswd, setConfirmPswd] = useState('');
   const [errormeaage,setErrorMessage]=useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
-  function handleSubmit(event: SubmitEvent) {
+  async function handleSubmit(event: SubmitEvent) {
     event.preventDefault();
-     if (password !== confirmPswd) {
+    if (isSubmitting) {
+      return;
+    }
+    if (password !== confirmPswd) {
       setErrorMessage('Passwords do not match!');
       return;
-    } 
+    }
+
+    setErrorMessage('');
+    setIsSubmitting(true);
+
+    try {
+      const data = await register(email, password, name);
+      setToken(data.token);
+    } catch (error) {
+      setErrorMessage((error as Error).message);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
    
 const hasEmptyField =[email,name,password,confirmPswd]
@@ -76,7 +95,7 @@ const hasEmptyField =[email,name,password,confirmPswd]
         variant="contained"
         type="submit"
         fullWidth
-        disabled={hasEmptyField}
+        disabled={hasEmptyField || isSubmitting}
       >
         Register
       </Button>
