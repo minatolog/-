@@ -1,4 +1,4 @@
-import { Box, Stack, Typography, TextField,Button,Alert } from '@mui/material';
+import { Alert, Box, Button, Stack, TextField, Typography } from '@mui/material';
 import { useContext, useState, type SubmitEvent } from 'react';
 import BackToHomeBtn from './BackToHomeBtn.tsx';
 import { login } from '../api.ts';
@@ -9,30 +9,31 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [errormeaage,setErrorMessage]=useState('');
+  const [errormeaage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(event: SubmitEvent): Promise<void> {
-  event.preventDefault();
+    event.preventDefault();
 
-  if (isSubmitting) {
-    return;
+    if (isSubmitting) {
+      return;
+    }
+
+    setErrorMessage('');
+    setIsSubmitting(true);
+
+    try {
+      const data = await login(email, password);
+      setToken(data.token);
+    } catch (error) {
+      setErrorMessage((error as Error).message);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
-
-  setErrorMessage('');
-  setIsSubmitting(true);
-
-  try {
-    const data = await login(email, password);
-    setToken(data.token);
-  } catch (error) {
-    setErrorMessage((error as Error).message);
-  } finally {
-    setIsSubmitting(false);
-  }
-}
 
   const hasEmptyField = email.trim() === '' || password.trim() === '';
+
   return (
     <>
       <Typography variant="h4" gutterBottom>
@@ -45,7 +46,7 @@ export default function LoginPage() {
 
       <Box component="form" onSubmit={handleSubmit}>
         <Stack spacing={2}>
-      {errormeaage && <Alert severity="error">{errormeaage}</Alert>}
+          {errormeaage && <Alert severity="error">{errormeaage}</Alert>}
           <TextField
             label="Email"
             type="email"
@@ -57,13 +58,13 @@ export default function LoginPage() {
           />
 
           <TextField
-          label="Password"
-          type="password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          required
-          fullWidth
-          autoComplete="current-password"
+            label="Password"
+            type="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            required
+            fullWidth
+            autoComplete="current-password"
           />
 
           <Button
@@ -75,10 +76,10 @@ export default function LoginPage() {
             Login
           </Button>
 
-        <BackToHomeBtn />
+          <BackToHomeBtn />
 
         </Stack>
       </Box>
     </>
-  )
+  );
 }
