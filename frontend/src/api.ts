@@ -6,10 +6,7 @@ type RequestOptions = {
   auth?: boolean; // 是否需要带 token
 };
 
-type LoginResponse = {
-  token: string;
-};
- type RegisterResponse = {
+type AuthResponse = {
   token: string;
 };
 
@@ -48,15 +45,15 @@ async function request(path: string, options: RequestOptions = {}): Promise<any>
   return data;
 }
 
-export function login(email: string, password: string): Promise<LoginResponse> {
+export function login(email: string, password: string): Promise<AuthResponse> {
     return request('/admin/auth/login', {
         method: 'POST',
         body: { email, password },
     });
-    }
-export function register(email: string, password: string): Promise<RegisterResponse> {
+}
+export function register(email: string, password: string, name: string): Promise<AuthResponse> {
     return request('/admin/auth/register', {
         method: 'POST',
-        body: { email, password },
+        body: { email, password, name },
     });
 }
