@@ -1,15 +1,15 @@
 import { Box, Stack, Typography, TextField,Button,Alert } from '@mui/material';
-import { useState, type SubmitEvent } from 'react';
+import { useContext, useState, type SubmitEvent } from 'react';
 import BackToHomeBtn from './BackToHomeBtn.tsx';
 import { login } from '../api.ts';
-import { AuthContext } from './AuthContext.tsx';  
+import { AuthContext } from './AuthContext.tsx';
 
 export default function LoginPage() {
+  const { setToken } = useContext(AuthContext);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errormeaage,setErrorMessage]=useState('');
-  const [confirmPswd, setConfirmPswd] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(event: SubmitEvent): Promise<void> {
@@ -70,7 +70,7 @@ export default function LoginPage() {
             variant="contained"
             type="submit"
             fullWidth
-            disabled={hasEmptyField}
+            disabled={hasEmptyField || isSubmitting}
           >
             Login
           </Button>
@@ -81,8 +81,4 @@ export default function LoginPage() {
       </Box>
     </>
   )
-}
-
-function setToken(token: string) {
-  throw new Error('Function not implemented.');
 }
