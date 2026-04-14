@@ -1,10 +1,10 @@
-import { useContext, useState } from 'react'  
+import { useContext } from 'react'  
 import { BrowserRouter, Routes,Route, Navigate } from 'react-router-dom'
 import AuthContainer from './auth/AuthContainer.tsx';
 import LoginPage from './auth/LoginPage.tsx';
 import RegisterPage from './auth/RegisterPage.tsx';
 import LandingPage from './auth/LandingPage.tsx';
-import Dashboard from './dashboard/dashboard.tsx';
+import Dashboard from './dashboard/Dashboard.tsx';
 import { AuthContext } from './auth/AuthContext.tsx'; 
 function App() {
   
@@ -26,15 +26,11 @@ function App() {
       <Route path="login" element={<LoginPage />} />
       <Route path="register" element={<RegisterPage />} />
         </Route>
-      <Route path='dashboard'
-       element={
-        token? <Dashboard /> : < Navigate to ="/auth" replace />
-       }
-      />
       <Route 
       path="/dashboard" 
       element={token ? <Dashboard /> : <Navigate to="/auth" replace />} 
       />
+      <Route path="*" element={<Navigate to={token ? '/dashboard' : '/auth'} replace />} />
 
 
 
