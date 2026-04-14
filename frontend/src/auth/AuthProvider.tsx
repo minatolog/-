@@ -1,15 +1,8 @@
-import { type ReactNode, useState } from "react";
-// import { AuthContext } from "./AuthContext.tsx";
-import { createContext } from 'react';
+import { type JSX, type ReactNode, useState } from "react";
+import { AuthContext } from "./AuthContext.tsx";
 
-type AuthContextType = {
-  token: string | null;
-  setToken: (token: string | null) => void;
-};
-
-export default function AuthProvider({ children }: { children: ReactNode }): Element {
+export default function AuthProvider({ children }: { children: ReactNode }): JSX.Element {
   const [token, setTokenState] = useState(localStorage.getItem('token'));
-  const AuthContext: Context<{}> = createContext(<AuthContextType>{}as AuthContextType);
 
   function setToken(token: string | null): void {
     setTokenState(token);
@@ -24,5 +17,5 @@ export default function AuthProvider({ children }: { children: ReactNode }): Ele
     <AuthContext.Provider value={{ token, setToken }}>
       {children}
     </AuthContext.Provider>
-  )
+  );
 }
