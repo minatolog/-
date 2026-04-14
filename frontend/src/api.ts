@@ -3,14 +3,17 @@ const BACKEND_URL = 'http://localhost:5005';
 type RequestOptions = {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
   body?: unknown;
-  auth?: boolean;
+  auth?: boolean; // 是否需要带 token
 };
 
-export type AuthResponse = {
+type LoginResponse = {
+  token: string;
+};
+ type RegisterResponse = {
   token: string;
 };
 
-async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+async function request(path: string, options: RequestOptions = {}): Promise<any> {
   const { method = 'GET', body, auth = false } = options;
 
   const headers: Record<string, string> = {
@@ -42,19 +45,18 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     throw new Error(data?.error || 'Request failed');
   }
 
-  return data as T;
+  return data;
 }
 
-export function login(email: string, password: string): Promise<AuthResponse> {
-  return request<AuthResponse>('/admin/auth/login', {
-    method: 'POST',
-    body: { email, password },
-  });
-}
-
-export function register(email: string, password: string, name: string): Promise<AuthResponse> {
-  return request<AuthResponse>('/admin/auth/register', {
-    method: 'POST',
-    body: { email, password, name },
-  });
+export function login(email: string, password: string): Promise<LoginResponse> {
+    return request('/admin/auth/login', {
+        method: 'POST',
+        body: { email, password },
+    });
+    }
+export function register(email: string, password: string): Promise<RegisterResponse> {
+    return request('/admin/auth/register', {
+        method: 'POST',
+        body: { email, password },
+    });
 }
