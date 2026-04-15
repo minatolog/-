@@ -4,8 +4,10 @@ import AuthContainer from './auth/AuthContainer.tsx';
 import LoginPage from './auth/LoginPage.tsx';
 import RegisterPage from './auth/RegisterPage.tsx';
 import LandingPage from './auth/LandingPage.tsx';
-import Dashboard from './dashboard/Dashboard.tsx';
+import Dashboard from './user/dashboard/Dashboard.tsx';
 import { AuthContext } from './auth/AuthContext.tsx';
+import User from './user/User.tsx';
+import { PausePresentation } from '@mui/icons-material';
 
 function App() {
   const { token } = useContext(AuthContext);
@@ -15,7 +17,7 @@ function App() {
       <Routes>
         <Route
           path="/auth"
-          element={token ? <Navigate to="/dashboard" replace /> : <AuthContainer />}
+          element={token ? <Navigate to="/user" replace /> : <AuthContainer />}
         >
           <Route index element={<LandingPage />} />
           <Route path="login" element={<LoginPage />} />
@@ -23,10 +25,13 @@ function App() {
         </Route>
 
         <Route
-          path="/dashboard"
-          element={token ? <Dashboard /> : <Navigate to="/auth" replace />}
+          path="/user"
+          element={token ? <User/> : <Navigate to="/auth" replace />}
         />
-        <Route path="*" element={<Navigate to={token ? '/dashboard' : '/auth'} replace />} />
+        <Route index element={<Navigate to="dashboard" replace />} />
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="presentation/:id" element={<Presentation/>} />
+        <Route path="*" element={<Navigate to={token ? '/user' : '/auth'} replace />} />
       </Routes>
     </BrowserRouter>
   );

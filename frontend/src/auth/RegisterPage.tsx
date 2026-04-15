@@ -6,7 +6,7 @@ import { AuthContext } from './AuthContext.tsx';
 
 export default function RegisterPage() {
   const { setToken } = useContext(AuthContext);
-
+  
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
