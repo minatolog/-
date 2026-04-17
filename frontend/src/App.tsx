@@ -7,7 +7,7 @@ import LandingPage from './auth/LandingPage.tsx';
 import Dashboard from './user/dashboard/Dashboard.tsx';
 import { AuthContext } from './auth/AuthContext.tsx';
 import User from './user/User.tsx';
-import { PausePresentation } from '@mui/icons-material';
+import Presentation from './user/presentation/Presentation.tsx';
 
 function App() {
   const { token } = useContext(AuthContext);
@@ -27,10 +27,11 @@ function App() {
         <Route
           path="/user"
           element={token ? <User/> : <Navigate to="/auth" replace />}
-        />
-        <Route index element={<Navigate to="dashboard" replace />} />
-        <Route path="dashboard" element={<Dashboard />} />
-        <Route path="presentation/:id" element={<Presentation/>} />
+        >
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="presentation/:id" element={<Presentation />} />
+        </Route>
         <Route path="*" element={<Navigate to={token ? '/user' : '/auth'} replace />} />
       </Routes>
     </BrowserRouter>
