@@ -2,7 +2,7 @@ import {useNavigate, useOutletContext, useParams} from "react-router-dom";
 import {Box, Stack, Typography} from "@mui/material";
 import type {UserOutletContext} from "../User.tsx";
 import {useEffect, useRef, useState} from "react";
-import type {PresentationType, SlideType} from "../PresentaionType.ts";
+import type {PresentationType} from "../PresentaionType.ts";
 import {createEmptySlide, getSaveStatusText} from "./helpers.ts";
 import TopBar from "./TopBar.tsx";
 import SlideRail from "./SlideRail.tsx";
@@ -78,16 +78,6 @@ export default function Presentation() {
     const next = recipe(structuredClone(presentationRef.current));
     setPresentation(next);
     markChange();
-  }
-
-  // 针对“当前正在浏览的 slide”的局部更新工具。
-  function updateCurrentSlide(recipe: (_slide: SlideType) => SlideType) {
-    updatePresentation(prev => {
-      const index = getCurrentSlideIndex();
-      const slides = [...prev.slides];
-      slides[index] = recipe(structuredClone(slides[index]));
-      return { ...prev, slides };
-    });
   }
 
   // 跳转到指定下标的 slide。
