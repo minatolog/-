@@ -137,3 +137,103 @@ export default function TitleBox({
       },
     },
   }
+
+  const mediaProps = presentation.thumbnail ?
+    {
+      component: "img",
+      src: presentation.thumbnail,
+      alt: presentation.title,
+      sx: styles.image,
+    } : {
+      component: "div",
+    };
+
+  const thumbnailBox = (
+    <Box sx={styles.thumbnailBox}>
+      <Box
+        {...mediaProps}
+      />
+    </Box>
+  );
+
+  const editIcon = (
+    <Tooltip title="Click to edit description">
+      <IconButton
+        size="small"
+        tabIndex={-1}
+        className="titlebox-edit-icon"
+        sx={styles.editIcon}
+      >
+        <EditOutlinedIcon fontSize="small" />
+      </IconButton>
+    </Tooltip>
+  );
+
+  const titleNode = editingField === 'title' ? (
+    <TextField
+      autoFocus
+      value={draft}
+      onChange={(e) => setDraft(e.target.value)}
+      onBlur={commitEdit}
+      onKeyDown={handleKeyDown}
+      size="small"
+    />
+  ) : (
+    <Stack
+      direction='row'
+      alignItems='center'
+      justifyContent='space-between'
+      sx={styles.editableDisplayBox}
+      onClick={() => beginEdit('title')}
+    >
+      <Typography variant="h5">
+        {presentation.title.trim()}
+      </Typography>
+
+      {editIcon}
+    </Stack>
+  );
+
+  const descriptionNode = editingField === 'description' ? (
+    <TextField
+      autoFocus
+      multiline
+      value={draft}
+      onChange={(e) => setDraft(e.target.value)}
+      onBlur={commitEdit}
+      onKeyDown={handleKeyDown}
+      size="small"
+      helperText="Press Ctrl/Cmd + Enter to save"
+    />
+  ) : (
+    <Stack
+      sx={styles.editableDisplayBox}
+      onClick={() => beginEdit('description')}
+      direction='row'
+      alignItems='center'
+      justifyContent='space-between'
+    >
+      <Typography variant="body2" color="text.secondary">
+        {presentation.description.trim()}
+      </Typography>
+
+      {editIcon}
+    </Stack>
+  );
+
+  return (
+    <Paper variant="outlined" sx={styles.titleBox}>
+      <Stack
+        direction="row"
+        spacing={2}
+        alignItems="center"
+      >
+        {thumbnailBox}
+      </Stack>
+      <Stack spacing={1} sx={styles.textInfo}>
+        {titleNode}
+        {descriptionNode}
+      </Stack>
+    </Paper>
+  )
+}
