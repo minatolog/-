@@ -10,6 +10,7 @@ type SlideCanvasProps = {
   currentSlideIndex: number;
   slideCount: number;
   goToSlide: (_index: number) => void;
+  onDeleteElement: (_elementId: string) => void;
 };
 
 export default function SlideCanvas({
@@ -17,6 +18,7 @@ export default function SlideCanvas({
   currentSlideIndex,
   slideCount,
   goToSlide,
+  onDeleteElement,
 }: SlideCanvasProps) {
   const sortedElements = useMemo(() => {
     return currentSlide.elements.slice().sort((a, b) => a.layer - b.layer);
@@ -109,7 +111,11 @@ export default function SlideCanvas({
   const canvas = (
     <Box sx={styles.canvas}>
       {sortedElements.map((element) =>
-        <ElementRenderer key={element.id} element={element} />
+        <ElementRenderer
+          key={element.id}
+          element={element}
+          onDelete={() => onDeleteElement(element.id)}
+        />
       )}
     </Box>
   );

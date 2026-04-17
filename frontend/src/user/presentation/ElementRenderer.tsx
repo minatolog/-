@@ -1,11 +1,13 @@
+import type {MouseEvent} from "react";
 import type {SlideElement} from "../PresentaionType.ts";
 import {Box, Typography} from "@mui/material";
 
 type ElementRendererProps = {
   element: SlideElement;
+  onDelete: () => void;
 };
 
-export default function ElementRenderer({ element }: ElementRendererProps) {
+export default function ElementRenderer({ element, onDelete }: ElementRendererProps) {
   const commonSx = {
     position: 'absolute',
     left: `${element.x}%`,
@@ -19,10 +21,15 @@ export default function ElementRenderer({ element }: ElementRendererProps) {
     bgcolor: '#fff',
   };
 
+  function handleContextMenu(event: MouseEvent) {
+    event.preventDefault();
+    onDelete();
+  }
+
   switch (element.type) {
   case 'text':
     return (
-      <Box sx={{ ...commonSx, p: 1 }}>
+      <Box sx={{ ...commonSx, p: 1 }} onContextMenu={handleContextMenu}>
         <Typography
           sx={{
             fontSize: `${element.fontSize}em`,
@@ -39,7 +46,10 @@ export default function ElementRenderer({ element }: ElementRendererProps) {
     );
   case 'image':
     return (
-      <Box sx={{ ...commonSx, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <Box
+        sx={{ ...commonSx, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        onContextMenu={handleContextMenu}
+      >
         {element.src ? (
           <Box
             component="img"
@@ -56,7 +66,10 @@ export default function ElementRenderer({ element }: ElementRendererProps) {
     );
   case 'video':
     return (
-      <Box sx={{ ...commonSx, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <Box
+        sx={{ ...commonSx, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        onContextMenu={handleContextMenu}
+      >
         <Typography variant="caption" color="text.secondary">
           Video placeholder
         </Typography>
@@ -64,7 +77,7 @@ export default function ElementRenderer({ element }: ElementRendererProps) {
     );
   case 'code':
     return (
-      <Box sx={{ ...commonSx, p: 1, bgcolor: 'grey.100' }}>
+      <Box sx={{ ...commonSx, p: 1, bgcolor: 'grey.100' }} onContextMenu={handleContextMenu}>
         <Box
           component="pre"
           sx={{

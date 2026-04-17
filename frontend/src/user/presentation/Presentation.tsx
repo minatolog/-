@@ -3,7 +3,7 @@ import {Box, Stack, Typography} from "@mui/material";
 import type {UserOutletContext} from "../User.tsx";
 import {useEffect, useRef, useState} from "react";
 import type {PresentationType} from "../PresentaionType.ts";
-import {createEmptySlide, getSaveStatusText} from "./helpers.ts";
+import {createEmptySlide, createId, getSaveStatusText} from "./helpers.ts";
 import TopBar from "./TopBar.tsx";
 import SlideRail from "./SlideRail.tsx";
 import TitleBox from "./TitleBox.tsx";
@@ -163,7 +163,47 @@ export default function Presentation() {
     });
   }
 
-  function onAddText() {}
+  function onAddText() {
+    updatePresentation(prev => {
+      const currentIndex = getCurrentSlideIndex();
+      const slides = [...prev.slides];
+      const currentSlide = structuredClone(slides[currentIndex]);
+
+      const nextLayer = currentSlide.elements.length === 0
+        ? 1
+        : Math.max(...currentSlide.elements.map((element) => element.layer)) + 1;
+
+      currentSlide.elements.push({
+        id: createId(),
+        type: 'text',
+        text: 'New text',
+        fontSize: 1,
+        color: '#222222',
+        width: 30,
+        height: 20,
+        x: 0,
+        y: 0,
+        layer: nextLayer,
+      });
+
+      slides[currentIndex] = currentSlide;
+      return { ...prev, slides };
+    });
+  }
+
+  function onDeleteElement(elementId: string) {
+    updatePresentation(prev => {
+      const currentIndex = getCurrentSlideIndex();
+      const slides = [...prev.slides];
+      const currentSlide = structuredClone(slides[currentIndex]);
+
+      currentSlide.elements = currentSlide.elements.filter((element) => element.id !== elementId);
+      slides[currentIndex] = currentSlide;
+
+      return { ...prev, slides };
+    });
+  }
+
   function onAddImage() {}
   function onAddVideo() {}
   function onAddCode() {}
@@ -323,6 +363,7 @@ export default function Presentation() {
             currentSlideIndex={currentSlideIndex}
             slideCount={presentation.slides.length}
             goToSlide={goToSlide}
+            onDeleteElement={onDeleteElement}
           />
         </Stack>
         <Box sx={styles.inspectorPanle}>
