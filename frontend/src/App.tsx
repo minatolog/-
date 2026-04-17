@@ -27,11 +27,10 @@ function App() {
         <Route
           path="/user"
           element={token ? <User/> : <Navigate to="/auth" replace />}
-        >
-          <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="presentation/:id" element={<Presentation />} />
-        </Route>
+        />
+        <Route index element={<Navigate to="dashboard" replace />} />
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="presentation/:id" element={<Presentation/>} />
         <Route path="*" element={<Navigate to={token ? '/user' : '/auth'} replace />} />
       </Routes>
     </BrowserRouter>

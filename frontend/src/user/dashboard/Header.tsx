@@ -3,6 +3,7 @@ import {AuthContext} from "../../auth/AuthContext.tsx";
 import {AppBar, Button, IconButton, Toolbar, Typography} from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 
+
 type HeaderProps = {
   onAddClick: () => void;
 };

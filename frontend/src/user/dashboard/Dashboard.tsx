@@ -5,7 +5,9 @@ import Header from "./Header.tsx";
 
 export default function Dashboard() {
   const { setToken } = useContext(AuthContext);
-
+  function onClick() {
+    alert("click+button")
+  }
   return (
     < Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 4 }}>
       <Button color="inherit" onClick={(): void => setToken(null)}>
