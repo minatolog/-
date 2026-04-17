@@ -1,8 +1,8 @@
 import {useNavigate, useOutletContext, useParams} from "react-router-dom";
-import {Box, Stack, Typography} from "@mui/material";
+import {Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, Typography} from "@mui/material";
 import type {UserOutletContext} from "../User.tsx";
 import {useEffect, useRef, useState} from "react";
-import type {PresentationType} from "../PresentaionType.ts";
+import type {PresentationType, TextElement} from "../PresentaionType.ts";
 import {createEmptySlide, createId, getSaveStatusText} from "./helpers.ts";
 import TopBar from "./TopBar.tsx";
 import SlideRail from "./SlideRail.tsx";
@@ -36,6 +36,10 @@ export default function Presentation() {
   // 是否打开“删除当前 slide”的确认框。
   // 这是本次新增的页面级状态。
   const [deleteSlideDialogOpen, setDeleteSlideDialogOpen] = useState(false);
+  const [editingTextId, setEditingTextId] = useState<string | null>(null);
+  const [textDraft, setTextDraft] = useState('');
+  const [fontSizeDraft, setFontSizeDraft] = useState('1');
+  const [colorDraft, setColorDraft] = useState('#222222');
 
   const localVersionRef = useRef(0);  // 本地版本号
   const remoteVersionRef = useRef(0); // 远程版本号
@@ -204,6 +208,51 @@ export default function Presentation() {
     });
   }
 
+  function onEditText(elementId: string) {
+    const currentSlide = presentationRef.current?.slides[getCurrentSlideIndex()];
+    const element = currentSlide?.elements.find((item) => item.id === elementId && item.type === 'text');
+    if (!element || element.type !== 'text') return;
+
+    setEditingTextId(element.id);
+    setTextDraft(element.text);
+    setFontSizeDraft(String(element.fontSize));
+    setColorDraft(element.color);
+  }
+
+  function onSaveTextEdit() {
+    if (!editingTextId) return;
+    const parsedFontSize = Number(fontSizeDraft);
+    if (!Number.isFinite(parsedFontSize) || parsedFontSize <= 0) {
+      setErrorMessage('Font size must be a positive number.');
+      return;
+    }
+
+    updatePresentation(prev => {
+      const currentIndex = getCurrentSlideIndex();
+      const slides = [...prev.slides];
+      const currentSlide = structuredClone(slides[currentIndex]);
+
+      currentSlide.elements = currentSlide.elements.map((element) => {
+        if (element.id !== editingTextId || element.type !== 'text') {
+          return element;
+        }
+
+        const nextElement: TextElement = {
+          ...element,
+          text: textDraft,
+          fontSize: parsedFontSize,
+          color: colorDraft,
+        };
+        return nextElement;
+      });
+
+      slides[currentIndex] = currentSlide;
+      return { ...prev, slides };
+    });
+
+    setEditingTextId(null);
+  }
+
   function onAddImage() {}
   function onAddVideo() {}
   function onAddCode() {}
@@ -364,6 +413,7 @@ export default function Presentation() {
             slideCount={presentation.slides.length}
             goToSlide={goToSlide}
             onDeleteElement={onDeleteElement}
+            onEditText={onEditText}
           />
         </Stack>
         <Box sx={styles.inspectorPanle}>
@@ -384,6 +434,38 @@ export default function Presentation() {
         onCancel={() => setDeleteSlideDialogOpen(false)}
         onConfirm={confirmDeleteCurrentSlide}
       />
+
+      <Dialog open={editingTextId !== null} onClose={() => setEditingTextId(null)} fullWidth maxWidth="sm">
+        <DialogTitle>Edit text</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <TextField
+              label="Text"
+              value={textDraft}
+              onChange={(event) => setTextDraft(event.target.value)}
+              multiline
+              minRows={3}
+              fullWidth
+            />
+            <TextField
+              label="Font size (em)"
+              value={fontSizeDraft}
+              onChange={(event) => setFontSizeDraft(event.target.value)}
+              fullWidth
+            />
+            <TextField
+              label="Color"
+              value={colorDraft}
+              onChange={(event) => setColorDraft(event.target.value)}
+              fullWidth
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditingTextId(null)}>Cancel</Button>
+          <Button onClick={onSaveTextEdit} variant="contained">Save</Button>
+        </DialogActions>
+      </Dialog>
     </>
   )
 }

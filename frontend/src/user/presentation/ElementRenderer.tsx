@@ -5,9 +5,10 @@ import {Box, Typography} from "@mui/material";
 type ElementRendererProps = {
   element: SlideElement;
   onDelete: () => void;
+  onEditText: () => void;
 };
 
-export default function ElementRenderer({ element, onDelete }: ElementRendererProps) {
+export default function ElementRenderer({ element, onDelete, onEditText }: ElementRendererProps) {
   const commonSx = {
     position: 'absolute',
     left: `${element.x}%`,
@@ -29,7 +30,7 @@ export default function ElementRenderer({ element, onDelete }: ElementRendererPr
   switch (element.type) {
   case 'text':
     return (
-      <Box sx={{ ...commonSx, p: 1 }} onContextMenu={handleContextMenu}>
+      <Box sx={{ ...commonSx, p: 1 }} onContextMenu={handleContextMenu} onDoubleClick={onEditText}>
         <Typography
           sx={{
             fontSize: `${element.fontSize}em`,
