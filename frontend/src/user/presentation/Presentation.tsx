@@ -217,3 +217,142 @@ export default function Presentation() {
       setErrorMessage(e instanceof Error ? e.message : "Save failed.");
     }
   }
+
+  async function autoSave() {
+    if (!presentationRef.current || isBusyRef.current || !hasUnsavedChanges()) {
+      return;
+    }
+
+    isBusyRef.current = true;
+    setIsBusy(true);
+    try {
+      await performPush();
+    } catch (e) {
+      setErrorMessage(e instanceof Error ? e.message : "auto save failed");
+    } finally {
+      isBusyRef.current = false;
+      setIsBusy(false);
+    }
+  }
+
+  useEffect(() => {
+    presentationRef.current = presentation;
+  }, [presentation]);
+
+  useEffect(() => {
+    if (!presentation) return;
+    const pageNum = Number(page);
+    const slidesCount = presentation.slides.length;
+    if (!Number.isInteger(pageNum) || pageNum < 1) {
+      navigate(`/user/presentation/${id}/1`);
+    } else if (pageNum > slidesCount) {
+      navigate(`/user/presentation/${id}/${slidesCount}`);
+    }
+  }, []);
+
+  // 注册定时器(auto save)
+  // 每隔 3 秒
+  // 自动上传当前 presentation 到 User
+  // User 发送 PUT 请求更新 store(presentation list)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      void autoSave();
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (!presentation) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Typography variant="h6">Presentation not found.</Typography>
+      </Box>
+    );
+  }
+
+  const currentSlideIndex = getCurrentSlideIndex();
+  const currentSlide = presentation.slides[currentSlideIndex];
+  const saveStatusText = getSaveStatusText(isBusy, hasUnsavedChanges());
+
+  const styles = {
+    mainPage: {
+      p: 2,
+      display: 'grid',
+      // 在小屏幕下，这个 grid 只有 1 列。
+      // 在 md 及以上屏幕时，变成 3 列布局：220px | 自适应 | 240px
+      gridTemplateColumns: { xs: '1fr', md: '220px minmax(0, 1fr) 240px' },
+      gap: 2,
+      alignItems: 'start',
+    },
+
+    slideRail: {
+      minWidth: 0,
+      // 在小屏幕下，SlideRail 排在第 2 行。
+      // 在中屏幕下, 排在第一排
+      order: { xs: 2, md: 1 },
+    },
+
+    middleArea: {
+      minWidth: 0,
+      order: { xs: 1, md: 2 },
+    },
+
+    inspectorPanle: {
+      minWidth: 0,
+      order: { xs: 3, md: 3 },
+    },
+  };
+
+  return (
+    <>
+      <TopBar
+        title={presentation.title}
+        saveStatusText={saveStatusText}
+        onBack={onBack}
+        onDeletePresentation={onDeletePresentation}
+        isBusy={isBusy}
+      />
+
+      <Box sx={styles.mainPage}>
+        <Box sx={styles.slideRail}>
+          <SlideRail
+            slides={presentation.slides}
+            currentSlideIndex={currentSlideIndex}
+            goToSlide={goToSlide}
+            onAddSlide={addSlide}
+          />
+        </Box>
+
+        <Stack spacing={2} sx={styles.middleArea}>
+          <TitleBox
+            presentation={presentation}
+            updateTitle={updateTitle}
+            updateDescription={updateDescription}
+          />
+          <SlideCanvas
+            currentSlide={currentSlide}
+            currentSlideIndex={currentSlideIndex}
+            slideCount={presentation.slides.length}
+            goToSlide={goToSlide}
+          />
+        </Stack>
+        <Box sx={styles.inspectorPanle}>
+          <InspectorPanel
+            onAddSlide={addSlide}
+            onRequestDeleteSlide={requestDeleteCurrentSlide}
+            onAddText={onAddText}
+            onAddImage={onAddImage}
+            onAddVideo={onAddVideo}
+            onAddCode={onAddCode}
+          />
+        </Box>
+      </Box>
+
+      <ConfirmDeleteSlideDialog
+        open={deleteSlideDialogOpen}
+        slideNumber={currentSlideIndex + 1}
+        onCancel={() => setDeleteSlideDialogOpen(false)}
+        onConfirm={confirmDeleteCurrentSlide}
+      />
+    </>
+  )
+}
