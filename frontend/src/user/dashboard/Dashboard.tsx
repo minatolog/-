@@ -9,7 +9,12 @@ export default function Dashboard() {
     alert("click+button")
   }
   return (
-    < Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 4 }}>
+    < Box sx={{
+       minHeight: '100vh',
+       display: 'flex',
+       flexDirection: 'column', 
+       alignItems: 'center',
+       mt: 4 }}>
       <Button color="inherit" onClick={(): void => setToken(null)}>
         Logout
       </Button>
