@@ -2,7 +2,7 @@ import type {PresentationType} from "../PresentaionType.ts";
 import {useState} from "react";
 import {type ChangeEvent} from "react"
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField} from "@mui/material";
-import {fileToDataUrl} from "../../utils.ts";
+import {fileToDataUrl} from "../../utils";
 import {createEmptySlide, createId} from "../presentation/helpers.ts";
 
 type CreatePresentationDialogProps = {
