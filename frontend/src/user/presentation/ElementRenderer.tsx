@@ -6,9 +6,10 @@ type ElementRendererProps = {
   element: SlideElement;
   onDelete: () => void;
   onEditText: () => void;
+  onEditImage: () => void;
 };
 
-export default function ElementRenderer({ element, onDelete, onEditText }: ElementRendererProps) {
+export default function ElementRenderer({ element, onDelete, onEditText, onEditImage }: ElementRendererProps) {
   const commonSx = {
     position: 'absolute',
     left: `${element.x}%`,
@@ -50,6 +51,7 @@ export default function ElementRenderer({ element, onDelete, onEditText }: Eleme
       <Box
         sx={{ ...commonSx, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
         onContextMenu={handleContextMenu}
+        onDoubleClick={onEditImage}
       >
         {element.src ? (
           <Box

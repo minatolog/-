@@ -2,7 +2,7 @@ import {useNavigate, useOutletContext, useParams} from "react-router-dom";
 import {Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, Typography} from "@mui/material";
 import type {UserOutletContext} from "../User.tsx";
 import {useEffect, useRef, useState, type ChangeEvent} from "react";
-import type {PresentationType, TextElement} from "../PresentaionType.ts";
+import type {ImageElement, PresentationType, TextElement} from "../PresentaionType.ts";
 import {createEmptySlide, createId, getSaveStatusText} from "./helpers.ts";
 import TopBar from "./TopBar.tsx";
 import SlideRail from "./SlideRail.tsx";
@@ -46,6 +46,7 @@ export default function Presentation() {
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
   const [imageSrcDraft, setImageSrcDraft] = useState('');
   const [imageAltDraft, setImageAltDraft] = useState('');
+  const [editingImageId, setEditingImageId] = useState<string | null>(null);
 
   const localVersionRef = useRef(0);  // 本地版本号
   const remoteVersionRef = useRef(0); // 远程版本号
@@ -292,8 +293,20 @@ export default function Presentation() {
   }
 
   function onAddImage() {
+    setEditingImageId(null);
     setImageSrcDraft('');
     setImageAltDraft('');
+    setImageDialogOpen(true);
+  }
+
+  function onEditImage(elementId: string) {
+    const currentSlide = presentationRef.current?.slides[getCurrentSlideIndex()];
+    const element = currentSlide?.elements.find((item) => item.id === elementId && item.type === 'image');
+    if (!element || element.type !== 'image') return;
+
+    setEditingImageId(element.id);
+    setImageSrcDraft(element.src);
+    setImageAltDraft(element.alt);
     setImageDialogOpen(true);
   }
 
@@ -308,27 +321,43 @@ export default function Presentation() {
       const slides = [...prev.slides];
       const currentSlide = structuredClone(slides[currentIndex]);
 
-      const nextLayer = currentSlide.elements.length === 0
-        ? 1
-        : Math.max(...currentSlide.elements.map((element) => element.layer)) + 1;
+      if (editingImageId) {
+        currentSlide.elements = currentSlide.elements.map((element) => {
+          if (element.id !== editingImageId || element.type !== 'image') {
+            return element;
+          }
 
-      currentSlide.elements.push({
-        id: createId(),
-        type: 'image',
-        src: imageSrcDraft.trim(),
-        alt: imageAltDraft.trim(),
-        width: 40,
-        height: 30,
-        x: 0,
-        y: 0,
-        layer: nextLayer,
-      });
+          const nextElement: ImageElement = {
+            ...element,
+            src: imageSrcDraft.trim(),
+            alt: imageAltDraft.trim(),
+          };
+          return nextElement;
+        });
+      } else {
+        const nextLayer = currentSlide.elements.length === 0
+          ? 1
+          : Math.max(...currentSlide.elements.map((element) => element.layer)) + 1;
+
+        currentSlide.elements.push({
+          id: createId(),
+          type: 'image',
+          src: imageSrcDraft.trim(),
+          alt: imageAltDraft.trim(),
+          width: 40,
+          height: 30,
+          x: 0,
+          y: 0,
+          layer: nextLayer,
+        });
+      }
 
       slides[currentIndex] = currentSlide;
       return { ...prev, slides };
     });
 
     setImageDialogOpen(false);
+    setEditingImageId(null);
   }
 
   function onAddVideo() {}
@@ -491,6 +520,7 @@ export default function Presentation() {
             goToSlide={goToSlide}
             onDeleteElement={onDeleteElement}
             onEditText={onEditText}
+            onEditImage={onEditImage}
           />
         </Stack>
         <Box sx={styles.inspectorPanle}>
@@ -556,8 +586,16 @@ export default function Presentation() {
         </DialogActions>
       </Dialog>
 
-      <Dialog open={imageDialogOpen} onClose={() => setImageDialogOpen(false)} fullWidth maxWidth="sm">
-        <DialogTitle>Add image</DialogTitle>
+      <Dialog
+        open={imageDialogOpen}
+        onClose={() => {
+          setImageDialogOpen(false);
+          setEditingImageId(null);
+        }}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>{editingImageId ? 'Edit image' : 'Add image'}</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
             <TextField
@@ -584,8 +622,16 @@ export default function Presentation() {
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setImageDialogOpen(false)}>Cancel</Button>
-          <Button onClick={onSaveImage} variant="contained">Create</Button>
+          <Button onClick={() => {
+            setImageDialogOpen(false);
+            setEditingImageId(null);
+          }}
+          >
+            Cancel
+          </Button>
+          <Button onClick={onSaveImage} variant="contained">
+            {editingImageId ? 'Save' : 'Create'}
+          </Button>
         </DialogActions>
       </Dialog>
     </>
