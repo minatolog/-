@@ -1,7 +1,7 @@
 import {useNavigate, useOutletContext, useParams} from "react-router-dom";
 import {Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, Typography} from "@mui/material";
 import type {UserOutletContext} from "../User.tsx";
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useRef, useState, type ChangeEvent} from "react";
 import type {PresentationType, TextElement} from "../PresentaionType.ts";
 import {createEmptySlide, createId, getSaveStatusText} from "./helpers.ts";
 import TopBar from "./TopBar.tsx";
@@ -10,6 +10,7 @@ import TitleBox from "./TitleBox.tsx";
 import SlideCanvas from "./SlideCanvas.tsx";
 import InspectorPanel from "./InspectorPanel.tsx";
 import ConfirmDeleteSlideDialog from "./dialogs/ConfirmDeleteSlideDialog.tsx";
+import {fileToDataUrl} from "../../utils.ts";
 
 export default function Presentation() {
 
@@ -42,6 +43,9 @@ export default function Presentation() {
   const [colorDraft, setColorDraft] = useState('#222222');
   const [xDraft, setXDraft] = useState('0');
   const [yDraft, setYDraft] = useState('0');
+  const [imageDialogOpen, setImageDialogOpen] = useState(false);
+  const [imageSrcDraft, setImageSrcDraft] = useState('');
+  const [imageAltDraft, setImageAltDraft] = useState('');
 
   const localVersionRef = useRef(0);  // 本地版本号
   const remoteVersionRef = useRef(0); // 远程版本号
@@ -269,7 +273,64 @@ export default function Presentation() {
     setEditingTextId(null);
   }
 
-  function onAddImage() {}
+  async function handleImageFileChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setErrorMessage('Please upload an image file.');
+      event.target.value = '';
+      return;
+    }
+
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      setImageSrcDraft(dataUrl);
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'Failed to read image file.');
+    }
+  }
+
+  function onAddImage() {
+    setImageSrcDraft('');
+    setImageAltDraft('');
+    setImageDialogOpen(true);
+  }
+
+  function onSaveImage() {
+    if (imageSrcDraft.trim() === '') {
+      setErrorMessage('Please provide an image URL or upload an image.');
+      return;
+    }
+
+    updatePresentation(prev => {
+      const currentIndex = getCurrentSlideIndex();
+      const slides = [...prev.slides];
+      const currentSlide = structuredClone(slides[currentIndex]);
+
+      const nextLayer = currentSlide.elements.length === 0
+        ? 1
+        : Math.max(...currentSlide.elements.map((element) => element.layer)) + 1;
+
+      currentSlide.elements.push({
+        id: createId(),
+        type: 'image',
+        src: imageSrcDraft.trim(),
+        alt: imageAltDraft.trim(),
+        width: 40,
+        height: 30,
+        x: 0,
+        y: 0,
+        layer: nextLayer,
+      });
+
+      slides[currentIndex] = currentSlide;
+      return { ...prev, slides };
+    });
+
+    setImageDialogOpen(false);
+  }
+
   function onAddVideo() {}
   function onAddCode() {}
 
@@ -492,6 +553,39 @@ export default function Presentation() {
         <DialogActions>
           <Button onClick={() => setEditingTextId(null)}>Cancel</Button>
           <Button onClick={onSaveTextEdit} variant="contained">Save</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={imageDialogOpen} onClose={() => setImageDialogOpen(false)} fullWidth maxWidth="sm">
+        <DialogTitle>Add image</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <TextField
+              label="Image URL"
+              value={imageSrcDraft}
+              onChange={(event) => setImageSrcDraft(event.target.value)}
+              fullWidth
+            />
+            <Button variant="outlined" component="label">
+              Upload image
+              <input
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={handleImageFileChange}
+              />
+            </Button>
+            <TextField
+              label="Alt text"
+              value={imageAltDraft}
+              onChange={(event) => setImageAltDraft(event.target.value)}
+              fullWidth
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setImageDialogOpen(false)}>Cancel</Button>
+          <Button onClick={onSaveImage} variant="contained">Create</Button>
         </DialogActions>
       </Dialog>
     </>
