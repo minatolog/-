@@ -55,6 +55,7 @@ export default function Presentation() {
   const [codeDraft, setCodeDraft] = useState('');
   const [codeFontSizeDraft, setCodeFontSizeDraft] = useState('1');
   const [editingCodeId, setEditingCodeId] = useState<string | null>(null);
+  const [slidePanelOpen, setSlidePanelOpen] = useState(false);
 
   const localVersionRef = useRef(0);  // 本地版本号
   const remoteVersionRef = useRef(0); // 远程版本号
@@ -644,9 +645,14 @@ export default function Presentation() {
       />
 
       <Box sx={{ px: 2, pt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-        <Button variant="outlined" onClick={onPreview}>
+        <Stack direction="row" spacing={1}>
+          <Button variant="outlined" onClick={() => setSlidePanelOpen(true)}>
+            Slides
+          </Button>
+          <Button variant="outlined" onClick={onPreview}>
           Preview
-        </Button>
+          </Button>
+        </Stack>
       </Box>
 
       <Box sx={styles.mainPage}>
@@ -869,6 +875,35 @@ export default function Presentation() {
           <Button onClick={onSaveCode} variant="contained">
             {editingCodeId ? 'Save' : 'Create'}
           </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={slidePanelOpen}
+        onClose={() => setSlidePanelOpen(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>Slide Control Panel</DialogTitle>
+        <DialogContent>
+          <Stack spacing={1} sx={{ mt: 1, maxHeight: 420, overflowY: 'auto' }}>
+            {presentation.slides.map((slide, index) => (
+              <Button
+                key={slide.id}
+                variant={index === currentSlideIndex ? 'contained' : 'outlined'}
+                onClick={() => {
+                  goToSlide(index);
+                  setSlidePanelOpen(false);
+                }}
+                sx={{ justifyContent: 'flex-start', minHeight: 56 }}
+              >
+                Slide {index + 1}
+              </Button>
+            ))}
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setSlidePanelOpen(false)}>Close</Button>
         </DialogActions>
       </Dialog>
     </>
