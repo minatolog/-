@@ -8,9 +8,17 @@ type ElementRendererProps = {
   onEditText: () => void;
   onEditImage: () => void;
   onEditVideo: () => void;
+  onEditCode: () => void;
 };
 
-export default function ElementRenderer({ element, onDelete, onEditText, onEditImage, onEditVideo }: ElementRendererProps) {
+export default function ElementRenderer({
+  element,
+  onDelete,
+  onEditText,
+  onEditImage,
+  onEditVideo,
+  onEditCode,
+}: ElementRendererProps) {
   const commonSx = {
     position: 'absolute',
     left: `${element.x}%`,
@@ -92,7 +100,11 @@ export default function ElementRenderer({ element, onDelete, onEditText, onEditI
     );
   case 'code':
     return (
-      <Box sx={{ ...commonSx, p: 1, bgcolor: 'grey.100' }} onContextMenu={handleContextMenu}>
+      <Box
+        sx={{ ...commonSx, p: 1, bgcolor: 'grey.100' }}
+        onContextMenu={handleContextMenu}
+        onDoubleClick={onEditCode}
+      >
         <Box
           component="pre"
           sx={{

@@ -14,6 +14,7 @@ type SlideCanvasProps = {
   onEditText: (_elementId: string) => void;
   onEditImage: (_elementId: string) => void;
   onEditVideo: (_elementId: string) => void;
+  onEditCode: (_elementId: string) => void;
 };
 
 export default function SlideCanvas({
@@ -25,6 +26,7 @@ export default function SlideCanvas({
   onEditText,
   onEditImage,
   onEditVideo,
+  onEditCode,
 }: SlideCanvasProps) {
   const sortedElements = useMemo(() => {
     return currentSlide.elements.slice().sort((a, b) => a.layer - b.layer);
@@ -124,6 +126,7 @@ export default function SlideCanvas({
           onEditText={() => onEditText(element.id)}
           onEditImage={() => onEditImage(element.id)}
           onEditVideo={() => onEditVideo(element.id)}
+          onEditCode={() => onEditCode(element.id)}
         />
       )}
     </Box>

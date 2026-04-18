@@ -2,7 +2,7 @@ import {useNavigate, useOutletContext, useParams} from "react-router-dom";
 import {Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, Typography} from "@mui/material";
 import type {UserOutletContext} from "../User.tsx";
 import {useEffect, useRef, useState, type ChangeEvent} from "react";
-import type {ImageElement, PresentationType, TextElement, VideoElement} from "../PresentaionType.ts";
+import type {CodeElement, ImageElement, PresentationType, TextElement, VideoElement} from "../PresentaionType.ts";
 import {createEmptySlide, createId, getSaveStatusText} from "./helpers.ts";
 import TopBar from "./TopBar.tsx";
 import SlideRail from "./SlideRail.tsx";
@@ -51,6 +51,10 @@ export default function Presentation() {
   const [videoSrcDraft, setVideoSrcDraft] = useState('');
   const [videoAutoplayDraft, setVideoAutoplayDraft] = useState('false');
   const [editingVideoId, setEditingVideoId] = useState<string | null>(null);
+  const [codeDialogOpen, setCodeDialogOpen] = useState(false);
+  const [codeDraft, setCodeDraft] = useState('');
+  const [codeFontSizeDraft, setCodeFontSizeDraft] = useState('1');
+  const [editingCodeId, setEditingCodeId] = useState<string | null>(null);
 
   const localVersionRef = useRef(0);  // 本地版本号
   const remoteVersionRef = useRef(0); // 远程版本号
@@ -432,7 +436,74 @@ export default function Presentation() {
     setEditingVideoId(null);
   }
 
-  function onAddCode() {}
+  function onAddCode() {
+    setEditingCodeId(null);
+    setCodeDraft('');
+    setCodeFontSizeDraft('1');
+    setCodeDialogOpen(true);
+  }
+
+  function onEditCode(elementId: string) {
+    const currentSlide = presentationRef.current?.slides[getCurrentSlideIndex()];
+    const element = currentSlide?.elements.find((item) => item.id === elementId && item.type === 'code');
+    if (!element || element.type !== 'code') return;
+
+    setEditingCodeId(element.id);
+    setCodeDraft(element.code);
+    setCodeFontSizeDraft(String(element.fontSize));
+    setCodeDialogOpen(true);
+  }
+
+  function onSaveCode() {
+    const parsedFontSize = Number(codeFontSizeDraft);
+    if (!Number.isFinite(parsedFontSize) || parsedFontSize <= 0) {
+      setErrorMessage('Font size must be a positive number.');
+      return;
+    }
+
+    updatePresentation(prev => {
+      const currentIndex = getCurrentSlideIndex();
+      const slides = [...prev.slides];
+      const currentSlide = structuredClone(slides[currentIndex]);
+
+      if (editingCodeId) {
+        currentSlide.elements = currentSlide.elements.map((element) => {
+          if (element.id !== editingCodeId || element.type !== 'code') {
+            return element;
+          }
+
+          const nextElement: CodeElement = {
+            ...element,
+            code: codeDraft,
+            fontSize: parsedFontSize,
+          };
+          return nextElement;
+        });
+      } else {
+        const nextLayer = currentSlide.elements.length === 0
+          ? 1
+          : Math.max(...currentSlide.elements.map((element) => element.layer)) + 1;
+
+        currentSlide.elements.push({
+          id: createId(),
+          type: 'code',
+          code: codeDraft,
+          fontSize: parsedFontSize,
+          width: 45,
+          height: 30,
+          x: 0,
+          y: 0,
+          layer: nextLayer,
+        });
+      }
+
+      slides[currentIndex] = currentSlide;
+      return { ...prev, slides };
+    });
+
+    setCodeDialogOpen(false);
+    setEditingCodeId(null);
+  }
 
   /////////////////////////////////
 
@@ -593,6 +664,7 @@ export default function Presentation() {
             onEditText={onEditText}
             onEditImage={onEditImage}
             onEditVideo={onEditVideo}
+            onEditCode={onEditCode}
           />
         </Stack>
         <Box sx={styles.inspectorPanle}>
@@ -744,6 +816,48 @@ export default function Presentation() {
           </Button>
           <Button onClick={onSaveVideo} variant="contained">
             {editingVideoId ? 'Save' : 'Create'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={codeDialogOpen}
+        onClose={() => {
+          setCodeDialogOpen(false);
+          setEditingCodeId(null);
+        }}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>{editingCodeId ? 'Edit code' : 'Add code'}</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <TextField
+              label="Code"
+              value={codeDraft}
+              onChange={(event) => setCodeDraft(event.target.value)}
+              multiline
+              minRows={5}
+              fullWidth
+            />
+            <TextField
+              label="Font size (em)"
+              value={codeFontSizeDraft}
+              onChange={(event) => setCodeFontSizeDraft(event.target.value)}
+              fullWidth
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => {
+            setCodeDialogOpen(false);
+            setEditingCodeId(null);
+          }}
+          >
+            Cancel
+          </Button>
+          <Button onClick={onSaveCode} variant="contained">
+            {editingCodeId ? 'Save' : 'Create'}
           </Button>
         </DialogActions>
       </Dialog>
