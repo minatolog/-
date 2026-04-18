@@ -40,9 +40,19 @@ export default function Dashboard() {
       alignItems="center"
       justifyContent="center"
       height="100%"
+      spacing={1.5}
+      sx={{
+        minHeight: 360,
+        borderRadius: 6,
+        border: '1px dashed rgba(15, 23, 42, 0.14)',
+        backgroundColor: 'rgba(255,255,255,0.52)',
+      }}
     >
-      <Typography variant="h6" color="text.secondary">
+      <Typography variant="h5" sx={{ fontWeight: 700 }}>
         No presentations yet.
+      </Typography>
+      <Typography color="text.secondary">
+        Start your first deck from the top-right corner.
       </Typography>
     </Stack>
   );
@@ -58,7 +68,7 @@ export default function Dashboard() {
   return (
     <Stack sx={{height: '100vh'}}>
       {header}
-      <Container maxWidth="md" sx={{py: 4, flexGrow: 1}}>
+      <Container maxWidth="lg" sx={{py: 4, flexGrow: 1}}>
         {presentationList.length === 0 ?
           emptyState :
           <PreviewArea presentationList={presentationList} />}

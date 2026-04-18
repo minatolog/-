@@ -41,11 +41,11 @@ export default function RegisterPage() {
 
   return (
     <>
-      <Typography variant="h4" gutterBottom>
+      <Typography variant="h4" gutterBottom sx={{ fontWeight: 800 }}>
         Register
       </Typography>
 
-      <Typography variant="body1" sx={{ mb: 3 }}>
+      <Typography variant="body1" sx={{ mb: 3, color: 'text.secondary' }}>
         Create your Presto account
       </Typography>
 
@@ -97,6 +97,7 @@ export default function RegisterPage() {
             type="submit"
             fullWidth
             disabled={hasEmptyField || isSubmitting}
+            sx={{ py: 1.2, borderRadius: 999, textTransform: 'none', fontWeight: 700 }}
           >
             Register
           </Button>

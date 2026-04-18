@@ -18,7 +18,20 @@ export default function PreviewCard({ presentation }: Props) {
     };
 
   return (
-    <Card sx={{ height: "100%" }}>
+    <Card
+      sx={{
+        height: "100%",
+        borderRadius: 5,
+        border: '1px solid rgba(15, 23, 42, 0.08)',
+        backgroundColor: 'rgba(255,255,255,0.86)',
+        boxShadow: '0 20px 44px rgba(15, 23, 42, 0.08)',
+        transition: 'transform 160ms ease, box-shadow 160ms ease',
+        '&:hover': {
+          transform: 'translateY(-4px)',
+          boxShadow: '0 26px 52px rgba(15, 23, 42, 0.14)',
+        },
+      }}
+    >
       <CardActionArea
         component={Link} to={`../presentation/${presentation.id}/1`}
         sx={{height: "100%",}}
@@ -26,19 +39,21 @@ export default function PreviewCard({ presentation }: Props) {
         <CardMedia
           {...mediaProps}
           sx={{
-            height: 140,
-            backgroundColor: "#e0e0e0",
+            aspectRatio: '2 / 1',
+            background: presentation.thumbnail
+              ? undefined
+              : 'linear-gradient(135deg, #f8d9a0 0%, #f2efe8 48%, #c5e2ff 100%)',
           }}
         />
 
-        <CardContent>
-          <Typography variant="h6" gutterBottom>
-            {presentation.title}
+        <CardContent sx={{ p: 2.5 }}>
+          <Typography variant="h6" gutterBottom sx={{ fontWeight: 800, color: '#0f172a' }}>
+            {presentation.title.trim() || 'Untitled presentation'}
           </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {presentation.description}
+          <Typography variant="body2" color="text.secondary" sx={{ minHeight: 40 }}>
+            {presentation.description.trim() || 'No description yet.'}
           </Typography>
-          <Typography variant="caption" color="text.secondary">
+          <Typography variant="caption" sx={{ color: '#475569', fontWeight: 700, letterSpacing: 0.3 }}>
             {presentation.slides.length} slides
           </Typography>
         </CardContent>

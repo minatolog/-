@@ -36,11 +36,11 @@ export default function LoginPage() {
 
   return (
     <>
-      <Typography variant="h4" gutterBottom>
+      <Typography variant="h4" gutterBottom sx={{ fontWeight: 800 }}>
         Login
       </Typography>
 
-      <Typography variant="body1" sx={{ mb: 3 }}>
+      <Typography variant="body1" sx={{ mb: 3, color: 'text.secondary' }}>
         Sign in to your Presto account
       </Typography>
 
@@ -72,6 +72,7 @@ export default function LoginPage() {
             type="submit"
             fullWidth
             disabled={hasEmptyField || isSubmitting}
+            sx={{ py: 1.2, borderRadius: 999, textTransform: 'none', fontWeight: 700 }}
           >
             Login
           </Button>

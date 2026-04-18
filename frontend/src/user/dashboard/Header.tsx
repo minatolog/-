@@ -11,17 +11,34 @@ type HeaderProps = {
 export default function Header({onAddClick}: HeaderProps) {
   const {setToken} = useContext(AuthContext);
   return (
-    <AppBar position="static">
-      <Toolbar>
-        <Typography variant="h6" sx={{ flexGrow: 1 }}>
+    <AppBar
+      position="static"
+      color="transparent"
+      elevation={0}
+      sx={{
+        borderBottom: '1px solid rgba(15, 23, 42, 0.08)',
+        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+        backdropFilter: 'blur(14px)',
+      }}
+    >
+      <Toolbar sx={{ minHeight: 76 }}>
+        <Typography variant="h5" sx={{ flexGrow: 1, fontWeight: 800, color: '#0f172a', letterSpacing: -0.5 }}>
           Presto
         </Typography>
 
-        <IconButton color="inherit" onClick={onAddClick} aria-label="New presentation">
+        <IconButton
+          sx={{ color: '#0f172a', bgcolor: 'rgba(15, 23, 42, 0.06)', mr: 1 }}
+          onClick={onAddClick}
+          aria-label="New presentation"
+        >
           <AddIcon />
         </IconButton>
 
-        <Button color="inherit" onClick={() => setToken(null)}>
+        <Button
+          variant="outlined"
+          sx={{ borderRadius: 999, textTransform: 'none', fontWeight: 700, color: '#0f172a', borderColor: 'rgba(15, 23, 42, 0.15)' }}
+          onClick={() => setToken(null)}
+        >
           logout
         </Button>
       </Toolbar>
