@@ -55,7 +55,12 @@ export default function TopBar({
   );
 
   const deleteBtn = (
-    <IconButton color="inherit" onClick={onDeletePresentation} disabled={isBusy}>
+    <IconButton
+      color="inherit"
+      onClick={onDeletePresentation}
+      disabled={isBusy}
+      aria-label="Delete presentation"
+    >
       <DeleteIcon />
     </IconButton>
   );

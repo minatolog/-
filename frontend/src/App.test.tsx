@@ -54,21 +54,39 @@ describe('App', () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
-  test('creates a presentation, adds slides, and switches slides', async () => {
+  test('creates a presentation, adds slides, deletes it, and logs back in', async () => {
     const user = userEvent.setup();
-    const fetchMock = vi.fn()
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ token: 'test-token' }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ store: [] }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({}),
-      });
+    let store: unknown[] = [];
+    const fetchMock = vi.fn(async (
+      input: unknown,
+      init?: { method?: string; body?: string }
+    ) => {
+      const url = String(input);
+
+      if (url.endsWith('/admin/auth/register') || url.endsWith('/admin/auth/login')) {
+        return {
+          ok: true,
+          json: async () => ({ token: 'test-token' }),
+        };
+      }
+
+      if (url.endsWith('/store') && init?.method === 'GET') {
+        return {
+          ok: true,
+          json: async () => ({ store }),
+        };
+      }
+
+      if (url.endsWith('/store') && init?.method === 'PUT') {
+        store = (JSON.parse(String(init.body)) as { store: unknown[] }).store;
+        return {
+          ok: true,
+          json: async () => ({}),
+        };
+      }
+
+      throw new Error(`Unexpected fetch call: ${url}`);
+    });
     vi.stubGlobal('fetch', fetchMock);
 
     render(
@@ -104,6 +122,21 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: 'Slide 1' }));
     expect(screen.getByText('Slide 1')).toBeTruthy();
 
-    expect(fetchMock).toHaveBeenCalledTimes(3);
+    await user.click(screen.getByRole('button', { name: 'Delete presentation' }));
+    expect(await screen.findByText('Are you sure you want to delete this presentation?')).toBeTruthy();
+    await user.click(screen.getByRole('button', { name: 'Yes' }));
+
+    expect(await screen.findByText('No presentations yet.')).toBeTruthy();
+
+    await user.click(screen.getByRole('button', { name: /logout/i }));
+    expect(await screen.findByText('Welcome to Presto')).toBeTruthy();
+
+    await user.click(screen.getByRole('button', { name: 'Login' }));
+    await user.type(screen.getByLabelText(/Email/i), 'test@example.com');
+    await user.type(screen.getByLabelText(/Password/i), 'password123');
+    await user.click(screen.getByRole('button', { name: 'Login' }));
+
+    expect(await screen.findByText('No presentations yet.')).toBeTruthy();
+    expect(fetchMock.mock.calls.length).toBeGreaterThanOrEqual(6);
   });
 });
