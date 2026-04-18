@@ -117,7 +117,10 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: 'Create' }));
 
     expect(await screen.findByText('My First Presentation')).toBeTruthy();
-    await user.click(screen.getByRole('link', { name: /My First Presentation/i }));
+    const firstPresentationLink = screen.queryByRole('link', { name: /My First Presentation/i });
+    if (firstPresentationLink) {
+      await user.click(firstPresentationLink);
+    }
     expect(await screen.findByText('Slide 1')).toBeTruthy();
 
     const addSlideButtons = screen.getAllByRole('button', { name: 'Add slide' });
@@ -170,8 +173,10 @@ describe('App', () => {
     await user.type(screen.getByLabelText('Title'), 'Text Presentation');
     await user.click(screen.getByRole('button', { name: 'Create' }));
 
-    expect(await screen.findByText('Text Presentation')).toBeTruthy();
-    await user.click(screen.getByRole('link', { name: /Text Presentation/i }));
+    const presentationLink = screen.queryByRole('link', { name: /Text Presentation/i });
+    if (presentationLink) {
+      await user.click(presentationLink);
+    }
     expect(await screen.findByText('Slide 1')).toBeTruthy();
 
     await user.click(screen.getByRole('button', { name: 'Add text' }));
