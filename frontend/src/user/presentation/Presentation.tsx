@@ -545,6 +545,10 @@ export default function Presentation() {
     }
   }
 
+  function onPreview() {
+    navigate(`/user/presentation/${id}/${getCurrentSlideIndex() + 1}/preview`);
+  }
+
   async function autoSave() {
     if (!presentationRef.current || isBusyRef.current || !hasUnsavedChanges()) {
       return;
@@ -638,6 +642,12 @@ export default function Presentation() {
         onDeletePresentation={onDeletePresentation}
         isBusy={isBusy}
       />
+
+      <Box sx={{ px: 2, pt: 2, display: 'flex', justifyContent: 'flex-end' }}>
+        <Button variant="outlined" onClick={onPreview}>
+          Preview
+        </Button>
+      </Box>
 
       <Box sx={styles.mainPage}>
         <Box sx={styles.slideRail}>

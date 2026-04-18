@@ -8,6 +8,7 @@ import Dashboard from "./user/dashboard/Dashboard.tsx"
 import {AuthContext} from "./auth/AuthContext.tsx";
 import User from "./user/User.tsx";
 import Presentation from "./user/presentation/Presentation.tsx";
+import Preview from "./user/presentation/Preview.tsx";
 
 function App() {
 
@@ -54,6 +55,7 @@ function App() {
       <Route index element={<Navigate to="dashboard" replace />} />
       <Route path="dashboard" element={<Dashboard />} />
       <Route path="presentation/:id/:page" element={<Presentation />} />
+      <Route path="presentation/:id/:page/preview" element={<Preview />} />
     </Route>
   );
 
