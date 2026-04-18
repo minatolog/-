@@ -28,31 +28,49 @@ export default function InspectorPanel({
   onAddVideo,
   onAddCode,
 }: InspectorPanelProps) {
+  const buttonSx = {
+    justifyContent: 'flex-start',
+    borderRadius: 3,
+    textTransform: 'none',
+    fontWeight: 700,
+  };
+
   return (
-    <Paper variant="outlined" sx={{ p: 1.5 }}>
+    <Paper
+      variant="outlined"
+      sx={{
+        p: 1.75,
+        borderRadius: 4,
+        backgroundColor: 'rgba(255,255,255,0.72)',
+        backdropFilter: 'blur(14px)',
+        borderColor: 'rgba(15, 23, 42, 0.08)',
+      }}
+    >
       <Stack spacing={1.5}>
-        <Typography variant="subtitle1">Inspector</Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={onAddSlide}>
+        <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a' }}>
+          Inspector
+        </Typography>
+        <Button variant="contained" startIcon={<AddIcon />} onClick={onAddSlide} sx={buttonSx}>
           Add slide
         </Button>
 
-        <Button variant="outlined" color="error" onClick={onRequestDeleteSlide}>
+        <Button variant="outlined" color="error" onClick={onRequestDeleteSlide} sx={buttonSx}>
           Delete slide
         </Button>
 
-        <Button variant="outlined" startIcon={<TextFieldsIcon />} onClick={onAddText}>
+        <Button variant="outlined" startIcon={<TextFieldsIcon />} onClick={onAddText} sx={buttonSx}>
           Add text
         </Button>
 
-        <Button variant="outlined" startIcon={<ImageIcon />} onClick={onAddImage}>
+        <Button variant="outlined" startIcon={<ImageIcon />} onClick={onAddImage} sx={buttonSx}>
           Add image
         </Button>
 
-        <Button variant="outlined" startIcon={<SmartDisplayIcon />} onClick={onAddVideo}>
+        <Button variant="outlined" startIcon={<SmartDisplayIcon />} onClick={onAddVideo} sx={buttonSx}>
           Add video
         </Button>
 
-        <Button variant="outlined" startIcon={<CodeIcon />} onClick={onAddCode}>
+        <Button variant="outlined" startIcon={<CodeIcon />} onClick={onAddCode} sx={buttonSx}>
           Add code
         </Button>
       </Stack>

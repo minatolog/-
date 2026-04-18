@@ -18,21 +18,29 @@ export default function SlideRail({
 
   const styles = {
     slideRail: {
-      p: 1.5,
+      p: 1.75,
+      borderRadius: 4,
+      backgroundColor: 'rgba(255,255,255,0.72)',
+      backdropFilter: 'blur(14px)',
+      borderColor: 'rgba(15, 23, 42, 0.08)',
     },
 
     slideButton: {
-      textTransform: 'none', // 小写文字
+      textTransform: 'none',
       minHeight: 72,
+      justifyContent: 'flex-start',
+      borderRadius: 3,
+      fontWeight: 700,
     },
   }
 
   const addSlideBtn = (
     <Button
       variant="contained"
-      startIcon={<AddIcon />} // 放在按钮左侧的 icon 图标
+      startIcon={<AddIcon />}
       onClick={onAddSlide}
       fullWidth
+      sx={{ borderRadius: 999, textTransform: 'none', fontWeight: 700 }}
     >
       Add slide
     </Button>

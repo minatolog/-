@@ -20,23 +20,31 @@ export default function TopBar({
 
   const styles = {
     savingStatus: {
-      opacity: 0.9 // 不透明度 0.9
+      opacity: 0.9,
+      color: '#475569',
+      fontWeight: 700,
     },
 
     toolBar: {
       gap: 1,
-      justifyContent: "space-between", // 将 left right 元素摆到两旁
+      justifyContent: "space-between",
+      minHeight: 76,
     },
   };
 
   const backBtn = (
-    <IconButton color="inherit" edge="start" onClick={onBack} disabled={isBusy}>
+    <IconButton
+      edge="start"
+      onClick={onBack}
+      disabled={isBusy}
+      sx={{ color: '#0f172a', bgcolor: 'rgba(15, 23, 42, 0.06)' }}
+    >
       <ArrowBackIcon />
     </IconButton>
   );
 
   const titleBox = (
-    <Typography variant="h6">
+    <Typography variant="h6" sx={{ fontWeight: 800, color: '#0f172a' }}>
       {title.trim() || 'Untitled'}
     </Typography>
   );
@@ -56,10 +64,10 @@ export default function TopBar({
 
   const deleteBtn = (
     <IconButton
-      color="inherit"
       onClick={onDeletePresentation}
       disabled={isBusy}
       aria-label="Delete presentation"
+      sx={{ color: '#0f172a', bgcolor: 'rgba(239, 68, 68, 0.1)' }}
     >
       <DeleteIcon />
     </IconButton>
@@ -73,7 +81,16 @@ export default function TopBar({
   );
 
   return (
-    <AppBar position="static">
+    <AppBar
+      position="static"
+      color="transparent"
+      elevation={0}
+      sx={{
+        borderBottom: '1px solid rgba(15, 23, 42, 0.08)',
+        backgroundColor: 'rgba(255, 255, 255, 0.74)',
+        backdropFilter: 'blur(16px)',
+      }}
+    >
       <Toolbar sx={styles.toolBar}>
         {left}
         {right}

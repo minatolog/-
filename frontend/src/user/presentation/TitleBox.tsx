@@ -96,7 +96,11 @@ export default function TitleBox({
 
   const styles = {
     titleBox: {
-      p: 2, // padding 缩写
+      p: 2.25,
+      borderRadius: 4,
+      backgroundColor: 'rgba(255,255,255,0.74)',
+      backdropFilter: 'blur(14px)',
+      borderColor: 'rgba(15, 23, 42, 0.08)',
     },
     image: {
       width: '100%',
@@ -110,7 +114,10 @@ export default function TitleBox({
       bgcolor: "#e0e0e0",
       flexShrink: 0,
       overflow: 'hidden',
-      borderRadius: 1,
+      borderRadius: 3,
+      background: presentation.thumbnail
+        ? '#e0e0e0'
+        : 'linear-gradient(135deg, #f8d9a0 0%, #f2efe8 48%, #c5e2ff 100%)',
     },
     textInfo: {
       minWidth: 0,
@@ -129,7 +136,8 @@ export default function TitleBox({
       outline: '1px solid transparent',
       transition: 'outline-color 0.15s ease',
       '&:hover': {
-        outlineColor: 'primary.main',
+        outlineColor: '#fb923c',
+        backgroundColor: 'rgba(248, 250, 252, 0.72)',
       },
       // 当鼠标 hover 到当前 Box 上时，选中这个 Box 里面 class 为 .titlebox-edit-icon 的元素
       '&:hover .titlebox-edit-icon': {
@@ -186,8 +194,8 @@ export default function TitleBox({
       sx={styles.editableDisplayBox}
       onClick={() => beginEdit('title')}
     >
-      <Typography variant="h5">
-        {presentation.title.trim()}
+      <Typography variant="h5" sx={{ fontWeight: 800, color: '#0f172a' }}>
+        {presentation.title.trim() || 'Untitled presentation'}
       </Typography>
 
       {editIcon}
@@ -214,7 +222,7 @@ export default function TitleBox({
       justifyContent='space-between'
     >
       <Typography variant="body2" color="text.secondary">
-        {presentation.description.trim()}
+        {presentation.description.trim() || 'Add a short description for this deck.'}
       </Typography>
 
       {editIcon}
@@ -223,16 +231,12 @@ export default function TitleBox({
 
   return (
     <Paper variant="outlined" sx={styles.titleBox}>
-      <Stack
-        direction="row"
-        spacing={2}
-        alignItems="center"
-      >
+      <Stack direction="row" spacing={2} alignItems="center">
         {thumbnailBox}
-      </Stack>
-      <Stack spacing={1} sx={styles.textInfo}>
-        {titleNode}
-        {descriptionNode}
+        <Stack spacing={1} sx={styles.textInfo}>
+          {titleNode}
+          {descriptionNode}
+        </Stack>
       </Stack>
     </Paper>
   )

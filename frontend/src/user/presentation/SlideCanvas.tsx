@@ -66,6 +66,10 @@ export default function SlideCanvas({
       width: '100%',
       aspectRatio: '16 / 9',
       overflow: 'hidden',
+      borderRadius: 5,
+      boxShadow: readOnly
+        ? '0 24px 48px rgba(15, 23, 42, 0.10)'
+        : '0 26px 60px rgba(15, 23, 42, 0.12)',
     },
 
     arrow: {
@@ -73,6 +77,9 @@ export default function SlideCanvas({
       top: '50%',
       transform: 'translateY(-50%)',
       zIndex: 2,
+      bgcolor: 'rgba(255,255,255,0.82)',
+      border: '1px solid rgba(15, 23, 42, 0.08)',
+      backdropFilter: 'blur(10px)',
     },
 
     leftArrow: {
@@ -88,9 +95,11 @@ export default function SlideCanvas({
       right: 8,
       bottom: 8,
       p: 1,
-      bgcolor: 'rgba(255,255,255,0.5)',
+      bgcolor: 'rgba(255,255,255,0.74)',
       borderRadius: 999,
       zIndex: 2,
+      fontWeight: 800,
+      color: '#334155',
     },
 
     canvas : {
@@ -147,7 +156,10 @@ export default function SlideCanvas({
   );
 
   return (
-    <Paper variant={readOnly ? 'elevation' : 'outlined'} sx={{ ...styles.container, ...backgroundSx }}>
+    <Paper
+      variant={readOnly ? 'elevation' : 'outlined'}
+      sx={{ ...styles.container, ...backgroundSx, borderColor: 'rgba(15, 23, 42, 0.08)' }}
+    >
       {leftArrow}
       {canvas}
       {rightArrow}
