@@ -37,6 +37,7 @@ export default function Presentation() {
   // 是否打开“删除当前 slide”的确认框。
   // 这是本次新增的页面级状态。
   const [deleteSlideDialogOpen, setDeleteSlideDialogOpen] = useState(false);
+  const [deletePresentationDialogOpen, setDeletePresentationDialogOpen] = useState(false);
   const [editingTextId, setEditingTextId] = useState<string | null>(null);
   const [textDraft, setTextDraft] = useState('');
   const [fontSizeDraft, setFontSizeDraft] = useState('1');
@@ -618,6 +619,11 @@ export default function Presentation() {
     }
   }
 
+  function requestDeletePresentation() {
+    if (isBusyRef.current) return;
+    setDeletePresentationDialogOpen(true);
+  }
+
   async function performPush() {
     const versionSnapshot = localVersionRef.current;
     await pushPresentation(presentationRef.current as PresentationType);
@@ -735,7 +741,7 @@ export default function Presentation() {
         title={presentation.title}
         saveStatusText={saveStatusText}
         onBack={onBack}
-        onDeletePresentation={onDeletePresentation}
+        onDeletePresentation={requestDeletePresentation}
         isBusy={isBusy}
       />
 
@@ -800,6 +806,33 @@ export default function Presentation() {
         onCancel={() => setDeleteSlideDialogOpen(false)}
         onConfirm={confirmDeleteCurrentSlide}
       />
+
+      <Dialog
+        open={deletePresentationDialogOpen}
+        onClose={() => setDeletePresentationDialogOpen(false)}
+      >
+        <DialogTitle>Delete presentation</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to delete this presentation?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeletePresentationDialogOpen(false)}>
+            No
+          </Button>
+          <Button
+            color="error"
+            variant="contained"
+            onClick={() => {
+              setDeletePresentationDialogOpen(false);
+              void onDeletePresentation();
+            }}
+          >
+            Yes
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Dialog open={editingTextId !== null} onClose={() => setEditingTextId(null)} fullWidth maxWidth="sm">
         <DialogTitle>Edit text</DialogTitle>
