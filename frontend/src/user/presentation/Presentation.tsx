@@ -752,6 +752,14 @@ export default function Presentation() {
     },
   };
 
+  const dialogPaperSx = {
+    borderRadius: 4,
+    border: '1px solid rgba(15, 23, 42, 0.08)',
+    backgroundColor: 'rgba(255,255,255,0.88)',
+    backdropFilter: 'blur(16px)',
+    boxShadow: '0 28px 72px rgba(15, 23, 42, 0.18)',
+  };
+
   return (
     <>
       <TopBar
@@ -827,6 +835,7 @@ export default function Presentation() {
       <Dialog
         open={deletePresentationDialogOpen}
         onClose={() => setDeletePresentationDialogOpen(false)}
+        PaperProps={{ sx: dialogPaperSx }}
       >
         <DialogTitle>Delete presentation</DialogTitle>
         <DialogContent>
@@ -851,7 +860,7 @@ export default function Presentation() {
         </DialogActions>
       </Dialog>
 
-      <Dialog open={editingTextId !== null} onClose={() => setEditingTextId(null)} fullWidth maxWidth="sm">
+      <Dialog open={editingTextId !== null} onClose={() => setEditingTextId(null)} fullWidth maxWidth="sm" PaperProps={{ sx: dialogPaperSx }}>
         <DialogTitle>Edit text</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
@@ -917,6 +926,7 @@ export default function Presentation() {
         }}
         fullWidth
         maxWidth="sm"
+        PaperProps={{ sx: dialogPaperSx }}
       >
         <DialogTitle>{editingImageId ? 'Edit image' : 'Add image'}</DialogTitle>
         <DialogContent>
@@ -966,6 +976,7 @@ export default function Presentation() {
         }}
         fullWidth
         maxWidth="sm"
+        PaperProps={{ sx: dialogPaperSx }}
       >
         <DialogTitle>{editingVideoId ? 'Edit video' : 'Add video'}</DialogTitle>
         <DialogContent>
@@ -1007,6 +1018,7 @@ export default function Presentation() {
         }}
         fullWidth
         maxWidth="sm"
+        PaperProps={{ sx: dialogPaperSx }}
       >
         <DialogTitle>{editingCodeId ? 'Edit code' : 'Add code'}</DialogTitle>
         <DialogContent>
@@ -1046,6 +1058,7 @@ export default function Presentation() {
         onClose={() => setSlidePanelOpen(false)}
         fullWidth
         maxWidth="sm"
+        PaperProps={{ sx: dialogPaperSx }}
       >
         <DialogTitle>Slide Control Panel</DialogTitle>
         <DialogContent>
@@ -1075,6 +1088,7 @@ export default function Presentation() {
         onClose={() => setThemeDialogOpen(false)}
         fullWidth
         maxWidth="sm"
+        PaperProps={{ sx: dialogPaperSx }}
       >
         <DialogTitle>Theme and Background</DialogTitle>
         <DialogContent>
