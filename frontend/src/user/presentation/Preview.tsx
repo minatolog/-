@@ -2,6 +2,7 @@ import {useNavigate, useOutletContext, useParams} from "react-router-dom";
 import {Box, Button, Stack, Typography} from "@mui/material";
 import type {UserOutletContext} from "../User.tsx";
 import SlideCanvas from "./SlideCanvas.tsx";
+import type {SlideBackground} from "../PresentaionType.ts";
 
 export default function Preview() {
   const navigate = useNavigate();
@@ -38,11 +39,21 @@ export default function Preview() {
 
   const currentSlideIndex = getCurrentSlideIndex();
   const currentSlide = presentation.slides[currentSlideIndex];
-  const appliedBackground = currentSlide.background?.kind === 'solid'
-    ? currentSlide.background.color
-    : presentation.theme?.defaultBackground?.kind === 'solid'
-      ? presentation.theme.defaultBackground.color
-      : '#ffffff';
+  const appliedBackground = currentSlide.background || presentation.theme?.defaultBackground;
+
+  function getBackgroundSx(background?: SlideBackground) {
+    if (!background) return { bgcolor: '#ffffff' };
+    if (background.kind === 'solid') return { bgcolor: background.color };
+    if (background.kind === 'gradient') {
+      return { background: `linear-gradient(${background.direction || '135deg'}, ${background.from}, ${background.to})` };
+    }
+    return {
+      backgroundImage: `url(${background.src})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+    };
+  }
 
   return (
     <Stack spacing={2} sx={{ minHeight: '100vh', p: 2, bgcolor: '#eef2f6' }}>
@@ -65,7 +76,7 @@ export default function Preview() {
           onEditVideo={() => {}}
           onEditCode={() => {}}
           readOnly
-          backgroundColor={appliedBackground}
+          backgroundSx={getBackgroundSx(appliedBackground)}
         />
       </Box>
     </Stack>

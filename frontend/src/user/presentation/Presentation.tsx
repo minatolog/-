@@ -2,7 +2,7 @@ import {useNavigate, useOutletContext, useParams} from "react-router-dom";
 import {Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, Typography} from "@mui/material";
 import type {UserOutletContext} from "../User.tsx";
 import {useEffect, useRef, useState, type ChangeEvent} from "react";
-import type {CodeElement, ImageElement, PresentationType, TextElement, VideoElement} from "../PresentaionType.ts";
+import type {CodeElement, ImageElement, PresentationType, SlideBackground, TextElement, VideoElement} from "../PresentaionType.ts";
 import {createEmptySlide, createId, getSaveStatusText} from "./helpers.ts";
 import TopBar from "./TopBar.tsx";
 import SlideRail from "./SlideRail.tsx";
@@ -57,8 +57,14 @@ export default function Presentation() {
   const [editingCodeId, setEditingCodeId] = useState<string | null>(null);
   const [slidePanelOpen, setSlidePanelOpen] = useState(false);
   const [themeDialogOpen, setThemeDialogOpen] = useState(false);
+  const [currentBackgroundModeDraft, setCurrentBackgroundModeDraft] = useState('solid');
   const [currentBackgroundDraft, setCurrentBackgroundDraft] = useState('#ffffff');
+  const [currentBackgroundSecondaryDraft, setCurrentBackgroundSecondaryDraft] = useState('#dbeafe');
+  const [currentBackgroundImageDraft, setCurrentBackgroundImageDraft] = useState('');
+  const [defaultBackgroundModeDraft, setDefaultBackgroundModeDraft] = useState('solid');
   const [defaultBackgroundDraft, setDefaultBackgroundDraft] = useState('#ffffff');
+  const [defaultBackgroundSecondaryDraft, setDefaultBackgroundSecondaryDraft] = useState('#dbeafe');
+  const [defaultBackgroundImageDraft, setDefaultBackgroundImageDraft] = useState('');
 
   const localVersionRef = useRef(0);  // 本地版本号
   const remoteVersionRef = useRef(0); // 远程版本号
@@ -524,15 +530,24 @@ export default function Presentation() {
   }
 
   function saveThemeSettings() {
+    const currentBackground: SlideBackground = currentBackgroundModeDraft === 'gradient'
+      ? { kind: 'gradient', from: currentBackgroundDraft, to: currentBackgroundSecondaryDraft, direction: '135deg' }
+      : currentBackgroundModeDraft === 'image'
+        ? { kind: 'image', src: currentBackgroundImageDraft.trim() }
+        : { kind: 'solid', color: currentBackgroundDraft };
+
+    const defaultBackground: SlideBackground = defaultBackgroundModeDraft === 'gradient'
+      ? { kind: 'gradient', from: defaultBackgroundDraft, to: defaultBackgroundSecondaryDraft, direction: '135deg' }
+      : defaultBackgroundModeDraft === 'image'
+        ? { kind: 'image', src: defaultBackgroundImageDraft.trim() }
+        : { kind: 'solid', color: defaultBackgroundDraft };
+
     updatePresentation(prev => {
       const currentIndex = getCurrentSlideIndex();
       const slides = [...prev.slides];
       const currentSlide = structuredClone(slides[currentIndex]);
 
-      currentSlide.background = {
-        kind: 'solid',
-        color: currentBackgroundDraft,
-      };
+      currentSlide.background = currentBackground;
       slides[currentIndex] = currentSlide;
 
       return {
@@ -540,15 +555,49 @@ export default function Presentation() {
         slides,
         theme: {
           ...prev.theme,
-          defaultBackground: {
-            kind: 'solid',
-            color: defaultBackgroundDraft,
-          },
+          defaultBackground,
         },
       };
     });
 
     setThemeDialogOpen(false);
+  }
+
+  async function handleBackgroundImageChange(event: ChangeEvent<HTMLInputElement>, target: 'current' | 'default') {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setErrorMessage('Please upload an image file.');
+      event.target.value = '';
+      return;
+    }
+
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      if (target === 'current') {
+        setCurrentBackgroundModeDraft('image');
+        setCurrentBackgroundImageDraft(dataUrl);
+      } else {
+        setDefaultBackgroundModeDraft('image');
+        setDefaultBackgroundImageDraft(dataUrl);
+      }
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'Failed to read image file.');
+    }
+  }
+
+  function getBackgroundSx(background?: SlideBackground) {
+    if (!background) return { bgcolor: '#ffffff' };
+    if (background.kind === 'solid') return { bgcolor: background.color };
+    if (background.kind === 'gradient') {
+      return { background: `linear-gradient(${background.direction || '135deg'}, ${background.from}, ${background.to})` };
+    }
+    return {
+      backgroundImage: `url(${background.src})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+    };
   }
 
   /////////////////////////////////
@@ -649,11 +698,7 @@ export default function Presentation() {
   const currentSlideIndex = getCurrentSlideIndex();
   const currentSlide = presentation.slides[currentSlideIndex];
   const saveStatusText = getSaveStatusText(isBusy, hasUnsavedChanges());
-  const appliedBackground = currentSlide.background?.kind === 'solid'
-    ? currentSlide.background.color
-    : presentation.theme?.defaultBackground?.kind === 'solid'
-      ? presentation.theme.defaultBackground.color
-      : '#ffffff';
+  const appliedBackground = currentSlide.background || presentation.theme?.defaultBackground;
 
   const styles = {
     mainPage: {
@@ -734,7 +779,7 @@ export default function Presentation() {
             onEditImage={onEditImage}
             onEditVideo={onEditVideo}
             onEditCode={onEditCode}
-            backgroundColor={appliedBackground}
+            backgroundSx={getBackgroundSx(appliedBackground)}
           />
         </Stack>
         <Box sx={styles.inspectorPanle}>
@@ -970,18 +1015,32 @@ export default function Presentation() {
         <DialogTitle>Theme and Background</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
+            <TextField label="Current slide background mode" value={currentBackgroundModeDraft} onChange={(event) => setCurrentBackgroundModeDraft(event.target.value)} fullWidth />
             <TextField
               label="Current slide background color"
               value={currentBackgroundDraft}
               onChange={(event) => setCurrentBackgroundDraft(event.target.value)}
               fullWidth
             />
+            <TextField label="Current gradient secondary color" value={currentBackgroundSecondaryDraft} onChange={(event) => setCurrentBackgroundSecondaryDraft(event.target.value)} fullWidth />
+            <TextField label="Current background image URL" value={currentBackgroundImageDraft} onChange={(event) => setCurrentBackgroundImageDraft(event.target.value)} fullWidth />
+            <Button variant="outlined" component="label">
+              Upload current background image
+              <input type="file" accept="image/*" hidden onChange={(event) => void handleBackgroundImageChange(event, 'current')} />
+            </Button>
+            <TextField label="Default background mode" value={defaultBackgroundModeDraft} onChange={(event) => setDefaultBackgroundModeDraft(event.target.value)} fullWidth />
             <TextField
               label="Default background color"
               value={defaultBackgroundDraft}
               onChange={(event) => setDefaultBackgroundDraft(event.target.value)}
               fullWidth
             />
+            <TextField label="Default gradient secondary color" value={defaultBackgroundSecondaryDraft} onChange={(event) => setDefaultBackgroundSecondaryDraft(event.target.value)} fullWidth />
+            <TextField label="Default background image URL" value={defaultBackgroundImageDraft} onChange={(event) => setDefaultBackgroundImageDraft(event.target.value)} fullWidth />
+            <Button variant="outlined" component="label">
+              Upload default background image
+              <input type="file" accept="image/*" hidden onChange={(event) => void handleBackgroundImageChange(event, 'default')} />
+            </Button>
           </Stack>
         </DialogContent>
         <DialogActions>
