@@ -54,7 +54,7 @@ describe('App', () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
-  test('creates a presentation and lands on the presentation page', async () => {
+  test('creates a presentation, adds slides, and switches slides', async () => {
     const user = userEvent.setup();
     const fetchMock = vi.fn()
       .mockResolvedValueOnce({
@@ -94,6 +94,16 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: 'Create' }));
 
     expect(await screen.findByText('My First Presentation')).toBeTruthy();
+    await user.click(screen.getByRole('link', { name: /My First Presentation/i }));
+    expect(await screen.findByText('Slide 1')).toBeTruthy();
+
+    const addSlideButtons = screen.getAllByRole('button', { name: 'Add slide' });
+    await user.click(addSlideButtons[0]);
+    expect(await screen.findByText('Slide 2')).toBeTruthy();
+
+    await user.click(screen.getByRole('button', { name: 'Slide 1' }));
+    expect(screen.getByText('Slide 1')).toBeTruthy();
+
     expect(fetchMock).toHaveBeenCalledTimes(3);
   });
 });

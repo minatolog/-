@@ -23,7 +23,7 @@ export default function Dashboard() {
     try {
       await appendPresentation(newPresentation);
       setDialogIsOpen(false);
-      navigate(`../presentation/${newPresentation.id}/1`);
+      navigate(`/user/presentation/${newPresentation.id}/1`);
     } catch (e) {
       if (e instanceof Error) {
         setErrorMessage(e.message);
