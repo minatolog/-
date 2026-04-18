@@ -40,6 +40,8 @@ export default function Presentation() {
   const [textDraft, setTextDraft] = useState('');
   const [fontSizeDraft, setFontSizeDraft] = useState('1');
   const [colorDraft, setColorDraft] = useState('#222222');
+  const [xDraft, setXDraft] = useState('0');
+  const [yDraft, setYDraft] = useState('0');
 
   const localVersionRef = useRef(0);  // 本地版本号
   const remoteVersionRef = useRef(0); // 远程版本号
@@ -217,13 +219,25 @@ export default function Presentation() {
     setTextDraft(element.text);
     setFontSizeDraft(String(element.fontSize));
     setColorDraft(element.color);
+    setXDraft(String(element.x));
+    setYDraft(String(element.y));
   }
 
   function onSaveTextEdit() {
     if (!editingTextId) return;
     const parsedFontSize = Number(fontSizeDraft);
+    const parsedX = Number(xDraft);
+    const parsedY = Number(yDraft);
     if (!Number.isFinite(parsedFontSize) || parsedFontSize <= 0) {
       setErrorMessage('Font size must be a positive number.');
+      return;
+    }
+    if (!Number.isFinite(parsedX) || parsedX < 0 || parsedX > 100) {
+      setErrorMessage('X position must be between 0 and 100.');
+      return;
+    }
+    if (!Number.isFinite(parsedY) || parsedY < 0 || parsedY > 100) {
+      setErrorMessage('Y position must be between 0 and 100.');
       return;
     }
 
@@ -242,6 +256,8 @@ export default function Presentation() {
           text: textDraft,
           fontSize: parsedFontSize,
           color: colorDraft,
+          x: parsedX,
+          y: parsedY,
         };
         return nextElement;
       });
@@ -457,6 +473,18 @@ export default function Presentation() {
               label="Color"
               value={colorDraft}
               onChange={(event) => setColorDraft(event.target.value)}
+              fullWidth
+            />
+            <TextField
+              label="X position (0-100)"
+              value={xDraft}
+              onChange={(event) => setXDraft(event.target.value)}
+              fullWidth
+            />
+            <TextField
+              label="Y position (0-100)"
+              value={yDraft}
+              onChange={(event) => setYDraft(event.target.value)}
               fullWidth
             />
           </Stack>
