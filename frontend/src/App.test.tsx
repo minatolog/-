@@ -1,8 +1,43 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import App from './App.tsx';
 import AuthProvider from './auth/AuthProvider.tsx';
+
+function createStoreFetchMock() {
+  let store: unknown[] = [];
+
+  return vi.fn(async (
+    input: unknown,
+    init?: { method?: string; body?: string }
+  ) => {
+    const url = String(input);
+
+    if (url.endsWith('/admin/auth/register') || url.endsWith('/admin/auth/login')) {
+      return {
+        ok: true,
+        json: async () => ({ token: 'test-token' }),
+      };
+    }
+
+    if (url.endsWith('/store') && init?.method === 'GET') {
+      return {
+        ok: true,
+        json: async () => ({ store }),
+      };
+    }
+
+    if (url.endsWith('/store') && init?.method === 'PUT') {
+      store = (JSON.parse(String(init.body)) as { store: unknown[] }).store;
+      return {
+        ok: true,
+        json: async () => ({}),
+      };
+    }
+
+    throw new Error(`Unexpected fetch call: ${url}`);
+  });
+}
 
 describe('App', () => {
   beforeEach(() => {
@@ -56,37 +91,7 @@ describe('App', () => {
 
   test('creates a presentation, adds slides, deletes it, and logs back in', async () => {
     const user = userEvent.setup();
-    let store: unknown[] = [];
-    const fetchMock = vi.fn(async (
-      input: unknown,
-      init?: { method?: string; body?: string }
-    ) => {
-      const url = String(input);
-
-      if (url.endsWith('/admin/auth/register') || url.endsWith('/admin/auth/login')) {
-        return {
-          ok: true,
-          json: async () => ({ token: 'test-token' }),
-        };
-      }
-
-      if (url.endsWith('/store') && init?.method === 'GET') {
-        return {
-          ok: true,
-          json: async () => ({ store }),
-        };
-      }
-
-      if (url.endsWith('/store') && init?.method === 'PUT') {
-        store = (JSON.parse(String(init.body)) as { store: unknown[] }).store;
-        return {
-          ok: true,
-          json: async () => ({}),
-        };
-      }
-
-      throw new Error(`Unexpected fetch call: ${url}`);
-    });
+    const fetchMock = createStoreFetchMock();
     vi.stubGlobal('fetch', fetchMock);
 
     render(
@@ -138,5 +143,54 @@ describe('App', () => {
 
     expect(await screen.findByText('No presentations yet.')).toBeTruthy();
     expect(fetchMock.mock.calls.length).toBeGreaterThanOrEqual(6);
+  });
+
+  test('adds, edits, and deletes a text element', async () => {
+    const user = userEvent.setup();
+    const fetchMock = createStoreFetchMock();
+    vi.stubGlobal('fetch', fetchMock);
+
+    render(
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Register' }));
+    await user.type(screen.getByLabelText(/Name/i), 'Test User');
+    await user.type(screen.getByLabelText(/Email/i), 'text@example.com');
+    const passwordInputs = screen.getAllByLabelText(/Password/i);
+    await user.type(passwordInputs[0], 'password123');
+    await user.type(passwordInputs[1], 'password123');
+    await user.click(screen.getByRole('button', { name: 'Register' }));
+
+    await screen.findByText('No presentations yet.');
+    await user.click(screen.getByRole('button', { name: 'New presentation' }));
+    await user.clear(screen.getByLabelText('Title'));
+    await user.type(screen.getByLabelText('Title'), 'Text Presentation');
+    await user.click(screen.getByRole('button', { name: 'Create' }));
+
+    expect(await screen.findByText('Text Presentation')).toBeTruthy();
+    await user.click(screen.getByRole('link', { name: /Text Presentation/i }));
+    expect(await screen.findByText('Slide 1')).toBeTruthy();
+
+    await user.click(screen.getByRole('button', { name: 'Add text' }));
+    const createdText = await screen.findByText('New text');
+    expect(createdText).toBeTruthy();
+
+    await user.dblClick(createdText);
+    expect(await screen.findByText('Edit text')).toBeTruthy();
+    await user.clear(screen.getByLabelText('Text'));
+    await user.type(screen.getByLabelText('Text'), 'Updated text element');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    const updatedText = await screen.findByText('Updated text element');
+    expect(updatedText).toBeTruthy();
+
+    fireEvent.contextMenu(updatedText);
+    await waitFor(() => {
+      expect(screen.queryByText('Updated text element')).toBeNull();
+    });
+    expect(fetchMock.mock.calls.length).toBeGreaterThanOrEqual(3);
   });
 });
