@@ -56,6 +56,9 @@ export default function Presentation() {
   const [codeFontSizeDraft, setCodeFontSizeDraft] = useState('1');
   const [editingCodeId, setEditingCodeId] = useState<string | null>(null);
   const [slidePanelOpen, setSlidePanelOpen] = useState(false);
+  const [themeDialogOpen, setThemeDialogOpen] = useState(false);
+  const [currentBackgroundDraft, setCurrentBackgroundDraft] = useState('#ffffff');
+  const [defaultBackgroundDraft, setDefaultBackgroundDraft] = useState('#ffffff');
 
   const localVersionRef = useRef(0);  // 本地版本号
   const remoteVersionRef = useRef(0); // 远程版本号
@@ -506,6 +509,48 @@ export default function Presentation() {
     setEditingCodeId(null);
   }
 
+  function openThemeDialog() {
+    const currentSlide = presentationRef.current?.slides[getCurrentSlideIndex()];
+    const currentBackground = currentSlide?.background?.kind === 'solid'
+      ? currentSlide.background.color
+      : '#ffffff';
+    const defaultBackground = presentationRef.current?.theme?.defaultBackground?.kind === 'solid'
+      ? presentationRef.current.theme.defaultBackground.color
+      : '#ffffff';
+
+    setCurrentBackgroundDraft(currentBackground);
+    setDefaultBackgroundDraft(defaultBackground);
+    setThemeDialogOpen(true);
+  }
+
+  function saveThemeSettings() {
+    updatePresentation(prev => {
+      const currentIndex = getCurrentSlideIndex();
+      const slides = [...prev.slides];
+      const currentSlide = structuredClone(slides[currentIndex]);
+
+      currentSlide.background = {
+        kind: 'solid',
+        color: currentBackgroundDraft,
+      };
+      slides[currentIndex] = currentSlide;
+
+      return {
+        ...prev,
+        slides,
+        theme: {
+          ...prev.theme,
+          defaultBackground: {
+            kind: 'solid',
+            color: defaultBackgroundDraft,
+          },
+        },
+      };
+    });
+
+    setThemeDialogOpen(false);
+  }
+
   /////////////////////////////////
 
   async function onDeletePresentation() {
@@ -604,6 +649,11 @@ export default function Presentation() {
   const currentSlideIndex = getCurrentSlideIndex();
   const currentSlide = presentation.slides[currentSlideIndex];
   const saveStatusText = getSaveStatusText(isBusy, hasUnsavedChanges());
+  const appliedBackground = currentSlide.background?.kind === 'solid'
+    ? currentSlide.background.color
+    : presentation.theme?.defaultBackground?.kind === 'solid'
+      ? presentation.theme.defaultBackground.color
+      : '#ffffff';
 
   const styles = {
     mainPage: {
@@ -646,6 +696,9 @@ export default function Presentation() {
 
       <Box sx={{ px: 2, pt: 2, display: 'flex', justifyContent: 'flex-end' }}>
         <Stack direction="row" spacing={1}>
+          <Button variant="outlined" onClick={openThemeDialog}>
+            Theme
+          </Button>
           <Button variant="outlined" onClick={() => setSlidePanelOpen(true)}>
             Slides
           </Button>
@@ -681,6 +734,7 @@ export default function Presentation() {
             onEditImage={onEditImage}
             onEditVideo={onEditVideo}
             onEditCode={onEditCode}
+            backgroundColor={appliedBackground}
           />
         </Stack>
         <Box sx={styles.inspectorPanle}>
@@ -904,6 +958,35 @@ export default function Presentation() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setSlidePanelOpen(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={themeDialogOpen}
+        onClose={() => setThemeDialogOpen(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>Theme and Background</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <TextField
+              label="Current slide background color"
+              value={currentBackgroundDraft}
+              onChange={(event) => setCurrentBackgroundDraft(event.target.value)}
+              fullWidth
+            />
+            <TextField
+              label="Default background color"
+              value={defaultBackgroundDraft}
+              onChange={(event) => setDefaultBackgroundDraft(event.target.value)}
+              fullWidth
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setThemeDialogOpen(false)}>Cancel</Button>
+          <Button onClick={saveThemeSettings} variant="contained">Save</Button>
         </DialogActions>
       </Dialog>
     </>

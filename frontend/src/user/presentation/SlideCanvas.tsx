@@ -16,6 +16,7 @@ type SlideCanvasProps = {
   onEditVideo: (_elementId: string) => void;
   onEditCode: (_elementId: string) => void;
   readOnly?: boolean;
+  backgroundColor?: string;
 };
 
 export default function SlideCanvas({
@@ -29,6 +30,7 @@ export default function SlideCanvas({
   onEditVideo,
   onEditCode,
   readOnly = false,
+  backgroundColor,
 }: SlideCanvasProps) {
   const sortedElements = useMemo(() => {
     return currentSlide.elements.slice().sort((a, b) => a.layer - b.layer);
@@ -64,6 +66,7 @@ export default function SlideCanvas({
       width: '100%',
       aspectRatio: '16 / 9',
       overflow: 'hidden',
+      bgcolor: backgroundColor || '#ffffff',
     },
 
     arrow: {

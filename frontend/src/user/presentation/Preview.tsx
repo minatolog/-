@@ -38,6 +38,11 @@ export default function Preview() {
 
   const currentSlideIndex = getCurrentSlideIndex();
   const currentSlide = presentation.slides[currentSlideIndex];
+  const appliedBackground = currentSlide.background?.kind === 'solid'
+    ? currentSlide.background.color
+    : presentation.theme?.defaultBackground?.kind === 'solid'
+      ? presentation.theme.defaultBackground.color
+      : '#ffffff';
 
   return (
     <Stack spacing={2} sx={{ minHeight: '100vh', p: 2, bgcolor: '#eef2f6' }}>
@@ -60,6 +65,7 @@ export default function Preview() {
           onEditVideo={() => {}}
           onEditCode={() => {}}
           readOnly
+          backgroundColor={appliedBackground}
         />
       </Box>
     </Stack>
