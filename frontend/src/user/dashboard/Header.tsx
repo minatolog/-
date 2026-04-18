@@ -17,7 +17,7 @@ export default function Header({onAddClick}: HeaderProps) {
           Presto
         </Typography>
 
-        <IconButton color="inherit" onClick={onAddClick}>
+        <IconButton color="inherit" onClick={onAddClick} aria-label="New presentation">
           <AddIcon />
         </IconButton>
 
