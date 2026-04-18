@@ -52,6 +52,7 @@ export default function ElementRenderer({
           sx={{
             fontSize: `${element.fontSize}em`,
             color: element.color,
+            fontFamily: element.fontFamily || 'Georgia, serif',
             whiteSpace: 'pre-wrap',
             overflow: 'auto',
             width: '100%',

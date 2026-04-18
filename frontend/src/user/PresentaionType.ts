@@ -34,6 +34,7 @@ export type TextElement = BaseElement & {
   text: string;
   fontSize: number;
   color: string;
+  fontFamily?: string;
 };
 
 export type ImageElement = BaseElement & {

@@ -13,6 +13,11 @@ import ConfirmDeleteSlideDialog from "./dialogs/ConfirmDeleteSlideDialog.tsx";
 import {fileToDataUrl} from "../../utils.ts";
 
 export default function Presentation() {
+  const textFontOptions = [
+    'Georgia, serif',
+    'Arial, sans-serif',
+    '"Courier New", monospace',
+  ];
 
   const navigate = useNavigate();
 
@@ -42,6 +47,7 @@ export default function Presentation() {
   const [textDraft, setTextDraft] = useState('');
   const [fontSizeDraft, setFontSizeDraft] = useState('1');
   const [colorDraft, setColorDraft] = useState('#222222');
+  const [fontFamilyDraft, setFontFamilyDraft] = useState(textFontOptions[0]);
   const [xDraft, setXDraft] = useState('0');
   const [yDraft, setYDraft] = useState('0');
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
@@ -209,6 +215,7 @@ export default function Presentation() {
         text: 'New text',
         fontSize: 1,
         color: '#222222',
+        fontFamily: textFontOptions[0],
         width: 30,
         height: 20,
         x: 0,
@@ -243,6 +250,7 @@ export default function Presentation() {
     setTextDraft(element.text);
     setFontSizeDraft(String(element.fontSize));
     setColorDraft(element.color);
+    setFontFamilyDraft(element.fontFamily || textFontOptions[0]);
     setXDraft(String(element.x));
     setYDraft(String(element.y));
   }
@@ -280,6 +288,7 @@ export default function Presentation() {
           text: textDraft,
           fontSize: parsedFontSize,
           color: colorDraft,
+          fontFamily: fontFamilyDraft,
           x: parsedX,
           y: parsedY,
         };
@@ -858,6 +867,20 @@ export default function Presentation() {
               onChange={(event) => setColorDraft(event.target.value)}
               fullWidth
             />
+            <TextField
+              select
+              label="Font family"
+              value={fontFamilyDraft}
+              onChange={(event) => setFontFamilyDraft(event.target.value)}
+              fullWidth
+              SelectProps={{ native: true }}
+            >
+              {textFontOptions.map((fontOption) => (
+                <option key={fontOption} value={fontOption}>
+                  {fontOption}
+                </option>
+              ))}
+            </TextField>
             <TextField
               label="X position (0-100)"
               value={xDraft}
