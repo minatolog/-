@@ -475,11 +475,17 @@ export default function Presentation() {
   }
 
   function onSaveCode() {
+    const normalizedCode = codeDraft;
     const parsedFontSize = Number(codeFontSizeDraft);
     if (!Number.isFinite(parsedFontSize) || parsedFontSize <= 0) {
       setErrorMessage('Font size must be a positive number.');
       return;
     }
+    const detectedLanguage = /#include|printf\s*\(|scanf\s*\(|int\s+main\s*\(/.test(normalizedCode)
+      ? 'c'
+      : /\bdef\b|\bprint\s*\(|\bimport\b|\bfrom\b|\belif\b|\bNone\b/.test(normalizedCode)
+        ? 'python'
+        : 'javascript';
 
     updatePresentation(prev => {
       const currentIndex = getCurrentSlideIndex();
@@ -494,8 +500,9 @@ export default function Presentation() {
 
           const nextElement: CodeElement = {
             ...element,
-            code: codeDraft,
+            code: normalizedCode,
             fontSize: parsedFontSize,
+            language: detectedLanguage,
           };
           return nextElement;
         });
@@ -507,8 +514,9 @@ export default function Presentation() {
         currentSlide.elements.push({
           id: createId(),
           type: 'code',
-          code: codeDraft,
+          code: normalizedCode,
           fontSize: parsedFontSize,
+          language: detectedLanguage,
           width: 45,
           height: 30,
           x: 0,
