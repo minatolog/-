@@ -15,6 +15,7 @@ type SlideCanvasProps = {
   onEditImage: (_elementId: string) => void;
   onEditVideo: (_elementId: string) => void;
   onEditCode: (_elementId: string) => void;
+  readOnly?: boolean;
 };
 
 export default function SlideCanvas({
@@ -27,6 +28,7 @@ export default function SlideCanvas({
   onEditImage,
   onEditVideo,
   onEditCode,
+  readOnly = false,
 }: SlideCanvasProps) {
   const sortedElements = useMemo(() => {
     return currentSlide.elements.slice().sort((a, b) => a.layer - b.layer);
@@ -127,6 +129,7 @@ export default function SlideCanvas({
           onEditImage={() => onEditImage(element.id)}
           onEditVideo={() => onEditVideo(element.id)}
           onEditCode={() => onEditCode(element.id)}
+          readOnly={readOnly}
         />
       )}
     </Box>
@@ -142,7 +145,7 @@ export default function SlideCanvas({
   );
 
   return (
-    <Paper variant="outlined" sx={styles.container}>
+    <Paper variant={readOnly ? 'elevation' : 'outlined'} sx={styles.container}>
       {leftArrow}
       {canvas}
       {rightArrow}

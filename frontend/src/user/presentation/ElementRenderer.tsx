@@ -9,6 +9,7 @@ type ElementRendererProps = {
   onEditImage: () => void;
   onEditVideo: () => void;
   onEditCode: () => void;
+  readOnly?: boolean;
 };
 
 export default function ElementRenderer({
@@ -18,6 +19,7 @@ export default function ElementRenderer({
   onEditImage,
   onEditVideo,
   onEditCode,
+  readOnly = false,
 }: ElementRendererProps) {
   const commonSx = {
     position: 'absolute',
@@ -26,13 +28,14 @@ export default function ElementRenderer({
     width: `${element.width}%`,
     height: `${element.height}%`,
     zIndex: element.layer,
-    border: '1px solid',
-    borderColor: 'grey.400',
+    border: readOnly ? 'none' : '1px solid',
+    borderColor: readOnly ? 'transparent' : 'grey.400',
     overflow: 'hidden',
     bgcolor: '#fff',
   };
 
   function handleContextMenu(event: MouseEvent) {
+    if (readOnly) return;
     event.preventDefault();
     onDelete();
   }
@@ -40,7 +43,11 @@ export default function ElementRenderer({
   switch (element.type) {
   case 'text':
     return (
-      <Box sx={{ ...commonSx, p: 1 }} onContextMenu={handleContextMenu} onDoubleClick={onEditText}>
+      <Box
+        sx={{ ...commonSx, p: 1 }}
+        onContextMenu={handleContextMenu}
+        onDoubleClick={readOnly ? undefined : onEditText}
+      >
         <Typography
           sx={{
             fontSize: `${element.fontSize}em`,
@@ -60,7 +67,7 @@ export default function ElementRenderer({
       <Box
         sx={{ ...commonSx, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
         onContextMenu={handleContextMenu}
-        onDoubleClick={onEditImage}
+        onDoubleClick={readOnly ? undefined : onEditImage}
       >
         {element.src ? (
           <Box
@@ -81,7 +88,7 @@ export default function ElementRenderer({
       <Box
         sx={{ ...commonSx, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
         onContextMenu={handleContextMenu}
-        onDoubleClick={onEditVideo}
+        onDoubleClick={readOnly ? undefined : onEditVideo}
       >
         {element.src ? (
           <Box
@@ -103,7 +110,7 @@ export default function ElementRenderer({
       <Box
         sx={{ ...commonSx, p: 1, bgcolor: 'grey.100' }}
         onContextMenu={handleContextMenu}
-        onDoubleClick={onEditCode}
+        onDoubleClick={readOnly ? undefined : onEditCode}
       >
         <Box
           component="pre"

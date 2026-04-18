@@ -40,7 +40,7 @@ export default function Preview() {
   const currentSlide = presentation.slides[currentSlideIndex];
 
   return (
-    <Stack spacing={2} sx={{ minHeight: '100vh', p: 2 }}>
+    <Stack spacing={2} sx={{ minHeight: '100vh', p: 2, bgcolor: '#eef2f6' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h5">{presentation.title.trim() || 'Untitled'}</Typography>
         <Button variant="outlined" onClick={() => navigate(`/user/presentation/${id}/${currentSlideIndex + 1}`)}>
@@ -48,7 +48,7 @@ export default function Preview() {
         </Button>
       </Box>
 
-      <Box sx={{ flexGrow: 1 }}>
+      <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <SlideCanvas
           currentSlide={currentSlide}
           currentSlideIndex={currentSlideIndex}
@@ -59,6 +59,7 @@ export default function Preview() {
           onEditImage={() => {}}
           onEditVideo={() => {}}
           onEditCode={() => {}}
+          readOnly
         />
       </Box>
     </Stack>
