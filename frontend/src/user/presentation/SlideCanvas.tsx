@@ -13,6 +13,7 @@ type SlideCanvasProps = {
   onDeleteElement: (_elementId: string) => void;
   onEditText: (_elementId: string) => void;
   onEditImage: (_elementId: string) => void;
+  onEditVideo: (_elementId: string) => void;
 };
 
 export default function SlideCanvas({
@@ -23,6 +24,7 @@ export default function SlideCanvas({
   onDeleteElement,
   onEditText,
   onEditImage,
+  onEditVideo,
 }: SlideCanvasProps) {
   const sortedElements = useMemo(() => {
     return currentSlide.elements.slice().sort((a, b) => a.layer - b.layer);
@@ -121,6 +123,7 @@ export default function SlideCanvas({
           onDelete={() => onDeleteElement(element.id)}
           onEditText={() => onEditText(element.id)}
           onEditImage={() => onEditImage(element.id)}
+          onEditVideo={() => onEditVideo(element.id)}
         />
       )}
     </Box>

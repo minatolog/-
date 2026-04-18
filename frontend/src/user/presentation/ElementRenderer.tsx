@@ -7,9 +7,10 @@ type ElementRendererProps = {
   onDelete: () => void;
   onEditText: () => void;
   onEditImage: () => void;
+  onEditVideo: () => void;
 };
 
-export default function ElementRenderer({ element, onDelete, onEditText, onEditImage }: ElementRendererProps) {
+export default function ElementRenderer({ element, onDelete, onEditText, onEditImage, onEditVideo }: ElementRendererProps) {
   const commonSx = {
     position: 'absolute',
     left: `${element.x}%`,
@@ -72,10 +73,21 @@ export default function ElementRenderer({ element, onDelete, onEditText, onEditI
       <Box
         sx={{ ...commonSx, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
         onContextMenu={handleContextMenu}
+        onDoubleClick={onEditVideo}
       >
-        <Typography variant="caption" color="text.secondary">
-          Video placeholder
-        </Typography>
+        {element.src ? (
+          <Box
+            component="iframe"
+            src={element.autoplay ? `${element.src}${element.src.includes('?') ? '&' : '?'}autoplay=1` : element.src}
+            title="Embedded video"
+            sx={{ width: '100%', height: '100%', border: 0 }}
+            allow="autoplay; encrypted-media"
+          />
+        ) : (
+          <Typography variant="caption" color="text.secondary">
+            Video placeholder
+          </Typography>
+        )}
       </Box>
     );
   case 'code':

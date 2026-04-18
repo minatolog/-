@@ -2,7 +2,7 @@ import {useNavigate, useOutletContext, useParams} from "react-router-dom";
 import {Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, Typography} from "@mui/material";
 import type {UserOutletContext} from "../User.tsx";
 import {useEffect, useRef, useState, type ChangeEvent} from "react";
-import type {ImageElement, PresentationType, TextElement} from "../PresentaionType.ts";
+import type {ImageElement, PresentationType, TextElement, VideoElement} from "../PresentaionType.ts";
 import {createEmptySlide, createId, getSaveStatusText} from "./helpers.ts";
 import TopBar from "./TopBar.tsx";
 import SlideRail from "./SlideRail.tsx";
@@ -47,6 +47,10 @@ export default function Presentation() {
   const [imageSrcDraft, setImageSrcDraft] = useState('');
   const [imageAltDraft, setImageAltDraft] = useState('');
   const [editingImageId, setEditingImageId] = useState<string | null>(null);
+  const [videoDialogOpen, setVideoDialogOpen] = useState(false);
+  const [videoSrcDraft, setVideoSrcDraft] = useState('');
+  const [videoAutoplayDraft, setVideoAutoplayDraft] = useState('false');
+  const [editingVideoId, setEditingVideoId] = useState<string | null>(null);
 
   const localVersionRef = useRef(0);  // 本地版本号
   const remoteVersionRef = useRef(0); // 远程版本号
@@ -360,7 +364,74 @@ export default function Presentation() {
     setEditingImageId(null);
   }
 
-  function onAddVideo() {}
+  function onAddVideo() {
+    setEditingVideoId(null);
+    setVideoSrcDraft('');
+    setVideoAutoplayDraft('false');
+    setVideoDialogOpen(true);
+  }
+
+  function onEditVideo(elementId: string) {
+    const currentSlide = presentationRef.current?.slides[getCurrentSlideIndex()];
+    const element = currentSlide?.elements.find((item) => item.id === elementId && item.type === 'video');
+    if (!element || element.type !== 'video') return;
+
+    setEditingVideoId(element.id);
+    setVideoSrcDraft(element.src);
+    setVideoAutoplayDraft(String(element.autoplay));
+    setVideoDialogOpen(true);
+  }
+
+  function onSaveVideo() {
+    if (videoSrcDraft.trim() === '') {
+      setErrorMessage('Please provide a YouTube embed URL.');
+      return;
+    }
+
+    updatePresentation(prev => {
+      const currentIndex = getCurrentSlideIndex();
+      const slides = [...prev.slides];
+      const currentSlide = structuredClone(slides[currentIndex]);
+
+      if (editingVideoId) {
+        currentSlide.elements = currentSlide.elements.map((element) => {
+          if (element.id !== editingVideoId || element.type !== 'video') {
+            return element;
+          }
+
+          const nextElement: VideoElement = {
+            ...element,
+            src: videoSrcDraft.trim(),
+            autoplay: videoAutoplayDraft === 'true',
+          };
+          return nextElement;
+        });
+      } else {
+        const nextLayer = currentSlide.elements.length === 0
+          ? 1
+          : Math.max(...currentSlide.elements.map((element) => element.layer)) + 1;
+
+        currentSlide.elements.push({
+          id: createId(),
+          type: 'video',
+          src: videoSrcDraft.trim(),
+          autoplay: videoAutoplayDraft === 'true',
+          width: 45,
+          height: 30,
+          x: 0,
+          y: 0,
+          layer: nextLayer,
+        });
+      }
+
+      slides[currentIndex] = currentSlide;
+      return { ...prev, slides };
+    });
+
+    setVideoDialogOpen(false);
+    setEditingVideoId(null);
+  }
+
   function onAddCode() {}
 
   /////////////////////////////////
@@ -521,6 +592,7 @@ export default function Presentation() {
             onDeleteElement={onDeleteElement}
             onEditText={onEditText}
             onEditImage={onEditImage}
+            onEditVideo={onEditVideo}
           />
         </Stack>
         <Box sx={styles.inspectorPanle}>
@@ -631,6 +703,47 @@ export default function Presentation() {
           </Button>
           <Button onClick={onSaveImage} variant="contained">
             {editingImageId ? 'Save' : 'Create'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={videoDialogOpen}
+        onClose={() => {
+          setVideoDialogOpen(false);
+          setEditingVideoId(null);
+        }}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>{editingVideoId ? 'Edit video' : 'Add video'}</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <TextField
+              label="YouTube embed URL"
+              value={videoSrcDraft}
+              onChange={(event) => setVideoSrcDraft(event.target.value)}
+              fullWidth
+            />
+            <TextField
+              label="Autoplay"
+              value={videoAutoplayDraft}
+              onChange={(event) => setVideoAutoplayDraft(event.target.value)}
+              helperText="Use true or false"
+              fullWidth
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => {
+            setVideoDialogOpen(false);
+            setEditingVideoId(null);
+          }}
+          >
+            Cancel
+          </Button>
+          <Button onClick={onSaveVideo} variant="contained">
+            {editingVideoId ? 'Save' : 'Create'}
           </Button>
         </DialogActions>
       </Dialog>
